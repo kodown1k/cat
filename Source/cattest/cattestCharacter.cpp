@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -35,6 +36,10 @@ AcattestCharacter::AcattestCharacter()
 	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	bIsCrouching = false;
+	CrouchHeight = 55.0f;
+	StandHeight = 88.0f;
+	CurrentCapsuleHeight = StandHeight;
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -59,7 +64,7 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AcattestCharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
@@ -67,6 +72,9 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AcattestCharacter::Look);
+
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AcattestCharacter::StartCrouch);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AcattestCharacter::StopCrouch);
 	}
 	else
 	{
@@ -98,5 +106,54 @@ void AcattestCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AcattestCharacter::StartCrouch(const FInputActionValue& Value)
+{
+	if (!bIsCrouching)
+	{
+		bIsCrouching = true;
+		
+		GetCharacterMovement()->MaxWalkSpeed /= 2;
+		// Wykonywanie funkcji AcattestCharacter::UpdateCrouchHeight w interwale (w pętli). Co 0.01 sekundy.
+		GetWorld()->GetTimerManager().SetTimer(CrouchTimer, this, &AcattestCharacter::UpdateCrouchHeight, 0.01f, true);
+	}
+}
+
+void AcattestCharacter::StopCrouch(const FInputActionValue& Value)
+{
+	if (bIsCrouching)
+	{
+		bIsCrouching = false;
+		
+		GetCharacterMovement()->MaxWalkSpeed *= 2;
+		// Wykonywanie funkcji AcattestCharacter::UpdateCrouchHeight w interwale (w pętli). Co 0.01 sekundy.
+		GetWorld()->GetTimerManager().SetTimer(CrouchTimer, this, &AcattestCharacter::UpdateCrouchHeight, 0.01f, true);
+	}
+}
+
+/**
+ * Płynna zmiana wysokości kapsuły.
+ */
+void AcattestCharacter::UpdateCrouchHeight()
+{
+	CurrentCapsuleHeight = FMath::FInterpTo(CurrentCapsuleHeight, bIsCrouching ? CrouchHeight : StandHeight, GetWorld()->GetDeltaSeconds(), 5.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CurrentCapsuleHeight);
+    
+	if (FMath::IsNearlyEqual(CurrentCapsuleHeight, bIsCrouching ? CrouchHeight : StandHeight))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CrouchTimer);
+	}
+}
+
+/**
+ * Logika sprawdzająca czy mozna podskoczyć.
+ */
+void AcattestCharacter::Jump() 
+{
+	if (!bIsCrouching)
+	{
+		Super::Jump();
 	}
 }

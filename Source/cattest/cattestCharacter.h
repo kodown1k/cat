@@ -44,17 +44,38 @@ class AcattestCharacter : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* CrouchAction;
+
+	
 	
 public:
 	AcattestCharacter();
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crouch", meta = (AllowPrivateAccess = "true"))
+	bool bIsCrouching;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crouch", meta = (ClampMin = "0.0"))
+	float CrouchHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crouch", meta = (ClampMin = "0.0"))
+	float StandHeight;
+
+	float CurrentCapsuleHeight;
+	FTimerHandle CrouchTimer;
+	
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	void StartCrouch(const FInputActionValue& Value);
+	void StopCrouch(const FInputActionValue& Value);
+	void UpdateCrouchHeight();
+	virtual void Jump() override;
 protected:
 	// APawn interface
 	virtual void NotifyControllerChanged() override;
