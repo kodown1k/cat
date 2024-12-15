@@ -94,6 +94,8 @@ void AcattestCharacter::BeginPlay()
 			CurrentWidget->AddToViewport();
 			if (GEngine)
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "widget dodany");
+
+			HealthBar = Cast<UProgressBar>(CurrentWidget->GetWidgetFromName(TEXT("HealthBar")));
 		}
 	}
 	else

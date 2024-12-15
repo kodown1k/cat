@@ -9,6 +9,7 @@
 #include "Logging/LogMacros.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/ProgressBar.h"
 #include "cattestCharacter.generated.h"
 
 
@@ -86,6 +87,7 @@ class AcattestCharacter : public ACharacter
 
 
 	//WIDGETY
+
 	
 	
 
@@ -104,15 +106,9 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-
 	void Use(const FInputActionValue& Value);
-	
-	
 	void ChangeCamera();
-
 	void Crouch2();
-	
-	
 	void UnCrouch2();   // Dezaktywuje crouch
 	void CCrouch2();    // Aktywuje crouch
 
@@ -159,5 +155,8 @@ public:
 	/** The widget instance that we are using as our HUD. */
 	UPROPERTY()
 	class UPawnStats* PlayerHUD;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	UProgressBar* HealthBar;
 };
 
