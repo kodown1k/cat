@@ -59,20 +59,6 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// TArray<USceneComponent*> FoundComponents;
-		// GetComponents(FoundComponents);
-		// for (USceneComponent* Component : FoundComponents)
-		// {
-		// 	// if (Component->FindFunction(TEXT("SetupPlayerInputComponent")))
-		// 	if (Component->IsA(TEXT("UASetupPlayerInputComponent")))
-		// 	{
-		// 		Component->SetupPlayerInputComponent(EnhancedInputComponent);
-		// 	}
-		// }
-
-		auto InventoryComponent = FindComponentByClass<UInventoryComponent>();
-		InventoryComponent->SetupPlayerInputComponent(EnhancedInputComponent);
-
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);

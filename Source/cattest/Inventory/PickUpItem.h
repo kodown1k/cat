@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryComponent.h"
+#include "InventorySlot.h"
 #include "GameFramework/Actor.h"
 #include "PickUpItem.generated.h"
 
@@ -19,11 +19,15 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	FInventoryItemStructure ItemStructure;
+	FInventoryItem ItemStructure;
+
+	UPROPERTY()
+	UStaticMeshComponent* StaticMeshComponent;
 };

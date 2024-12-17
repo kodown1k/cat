@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "InventoryComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InventoryPanel.h"
@@ -10,18 +7,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
-// Sets default values for this component's properties
+
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UInventoryComponent::SetupPlayerInputComponent(UEnhancedInputComponent* EnhancedInputComponent)
+void UInventoryComponent::SetupPlayerInputComponent()
 {
-	EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this,
-	                                   &UInventoryComponent::ToggleVisibilityInventory);
-	EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Triggered, this,
-	                                   &UInventoryComponent::PickupItem);
+	if (UEnhancedInputComponent* EnhancedInputComponent = GetOwner()->GetComponentByClass<UEnhancedInputComponent>())
+	{
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &UInventoryComponent::ToggleVisibilityInventory);
+		EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Triggered, this, &UInventoryComponent::PickupItem);
+	}
 }
 
 
@@ -30,6 +28,17 @@ void UInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	InitializeInventory();
+	SetupPlayerInputComponent();
+
+	// if (MyActorInstance)
+	// {
+	// 	MyActorInstance->OnMyEvent.AddDynamic(this, &UInventoryComponent::RemoveItem);
+	// }
+}
+
+void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UInventoryComponent::InitializeInventory()
@@ -38,32 +47,13 @@ void UInventoryComponent::InitializeInventory()
 
 	if (IsValid(InventoryWidgetClass))
 	{
-		InventoryWidget = Cast<UInventoryPanel>(CreateWidget(GetWorld(), InventoryWidgetClass));
+		InventoryWidget = Cast<UInventoryPanel>(CreateWidget(GetWorld()->GetFirstPlayerController(), InventoryWidgetClass));
 		if (InventoryWidget)
 		{
-			InventoryWidget->AddToViewport();
 			RefreshInventory();
-		}
-	}
-}
 
-
-void UInventoryComponent::RefreshInventory()
-{
-	if (!InventoryWidget)
-	{
-		return;
-	}
-
-	InventoryWidget->OnionsBox->ClearChildren();
-	for (const FInventoryItemStructure& item : Items)
-	{
-		log(FString::FromInt(item.Quantity));
-		if (auto Slot = Cast<UInventorySlot>(CreateWidget(InventoryWidget, InventoryWidgetSlotClass)))
-		{
-			Slot->SItem = item;
-
-			InventoryWidget->OnionsBox->AddChildToHorizontalBox(Slot);
+			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+			InventoryWidget->AddToViewport();
 		}
 	}
 }
@@ -78,68 +68,46 @@ void UInventoryComponent::ToggleVisibilityInventory()
 			return;
 		}
 
-		if (InventoryWidget->IsInViewport())
+		if (InventoryWidget->IsVisible())
 		{
-			InventoryWidget->RemoveFromParent();
+			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
 			PlayerController->bShowMouseCursor = false;
-
 			FInputModeGameOnly InputMode;
 			PlayerController->SetInputMode(InputMode);
 		}
 		else
 		{
+			InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+			PlayerController->bShowMouseCursor = true;
 			FInputModeGameAndUI InputMode;
 			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-			// InputMode.SetWidgetToFocus(InventoryWidget->TakeWidget());
 			PlayerController->SetInputMode(InputMode);
-
-			PlayerController->bShowMouseCursor = true;
-			InventoryWidget->AddToViewport();
 		}
 	}
 }
 
-TArray<FHitResult> UInventoryComponent::SphereTrace()
+
+void UInventoryComponent::RefreshInventory()
 {
-	TArray<FHitResult> HitResults;
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (!PlayerCharacter)
+	if (!InventoryWidget)
 	{
-		return HitResults;
+		return;
 	}
 
-	FVector Start = PlayerCharacter->GetActorLocation(); // Lokalizacja postaci
-	FVector End = Start - FVector(0, 0, 65);
-	// Przesunięcie w dół o 65 jednostek, to mozna uzaleznić od kierunku patrzenia.
-
-	float SphereRadius = 130.0f; // Promień sfery
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.bTraceComplex = true;
-	CollisionParams.AddIgnoredActor(PlayerCharacter); // Ignoruj siebie
-
-	// Wykonaj tracing
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		HitResults,
-		Start,
-		End,
-		FQuat::Identity,
-		ECC_Camera,
-		FCollisionShape::MakeSphere(SphereRadius),
-		CollisionParams
-	);
-
-	mDrawSphere((Start + End) / 2.0f, SphereRadius);
-
-	return HitResults;
-}
-
-void UInventoryComponent::mDrawSphere(FVector MidPoint, float SphereRadius) const
-{
-	if (mDebug)
+	InventoryWidget->OnionsBox->ClearChildren();
+	int index = 0;
+	for (const FInventoryItem& item : Items)
 	{
-		DrawDebugSphere(GetWorld(), MidPoint, SphereRadius, 12, FColor::MakeRandomColor(), false, 10.0f);
+		if (auto Slot = Cast<UInventorySlot>(CreateWidget(InventoryWidget, InventoryWidgetSlotClass)))
+		{
+			Slot->SItem = item;
+			Slot->index = index;
+			InventoryWidget->OnionsBox->AddChildToHorizontalBox(Slot);
+			++index;
+		}
 	}
 }
+
 
 void UInventoryComponent::PickupItem()
 {
@@ -155,13 +123,44 @@ void UInventoryComponent::PickupItem()
 
 			AddItem(PickUpItem->ItemStructure);
 			RefreshInventory();
+			PickUpItem->Destroy();
+			return;
 		}
 	}
 }
 
-void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+
+TArray<FHitResult> UInventoryComponent::SphereTrace()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	TArray<FHitResult> HitResults;
+	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (!PlayerCharacter)
+	{
+		return HitResults;
+	}
+
+	FVector Start = PlayerCharacter->GetActorLocation() + FVector(100, 0, 0);
+	FVector End = Start - FVector(0, 0, 65);
+
+	float SphereRadius = 130.0f; // Promień sfery
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.bTraceComplex = true;
+	CollisionParams.AddIgnoredActor(PlayerCharacter); // Ignoruj siebie
+
+	// Wykonaj tracing
+	GetWorld()->SweepMultiByChannel(
+		HitResults,
+		Start,
+		End,
+		FQuat::Identity,
+		ECC_Camera,
+		FCollisionShape::MakeSphere(SphereRadius),
+		CollisionParams
+	);
+
+	mDrawSphere((Start + End) / 2.0f, SphereRadius);
+
+	return HitResults;
 }
 
 
@@ -169,12 +168,11 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
  * Dodaje item do inventory. Wyszukuje po nazwie (zwiększa ilość), jesli nie znajdzie po nazwie to doda do pierwsezgo miejsca  z ilością=0.
  * Jeśli nie znajdzie miejsca nic nie robi.
  */
-void UInventoryComponent::AddItem(FInventoryItemStructure Item)
+void UInventoryComponent::AddItem(FInventoryItem Item)
 {
-	log("asdf");
 	for (int32 i = 0; i < Items.Num(); ++i)
 	{
-		if (Items[i].Name.EqualTo(Item.Name))
+		if (Items[i].Name.EqualTo(Item.Name) && Item.Stackable) // Czy mamy w inventory item z taka nazwa i jest stackable, wowczas zwiekszamy ilosc.
 		{
 			Items[i].Quantity += Item.Quantity;
 			return;
@@ -182,15 +180,45 @@ void UInventoryComponent::AddItem(FInventoryItemStructure Item)
 	}
 	for (int32 i = 0; i < Items.Num(); ++i)
 	{
-		if (Items[i].Quantity == 0)
+		if (Items[i].Quantity == 0) // Dodajemy do pierwszego pustego miejsca
 		{
 			Items[i] = Item;
 			return;
 		}
 	}
 
+	// Jesli nie ma stworzonych nawet pustych slotow dodajemy w pierwsze miejsce.
 	Items.Insert(Item, 0);
 }
+
+void UInventoryComponent::RemoveItem()
+{
+	// if (Items.IsValidIndex(index))
+	// {
+	// 	FInventoryItemStructure Item = Items[index];
+	// 	UE_LOG(LogTemp, Display, TEXT("Removing Item: %s"), *Item.Name.ToString());
+	// 	--Item.Quantity;
+	// 	if (Item.Quantity == 0)
+	// 	{
+	// 		Items.RemoveAt(index);
+	// 	}
+	// 	RefreshInventory();
+	// }
+	// else
+	// {
+	UE_LOG(LogTemp, Display, TEXT("Mamy problem"));
+	// }
+}
+
+
+void UInventoryComponent::mDrawSphere(FVector MidPoint, float SphereRadius) const
+{
+	if (mDebug)
+	{
+		DrawDebugSphere(GetWorld(), MidPoint, SphereRadius, 12, FColor::MakeRandomColor(), false, 10.0f);
+	}
+}
+
 
 void UInventoryComponent::log(FString msg) const
 {

@@ -1,22 +1,36 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "PickUpItem.h"
 
-// Sets default values
+
 APickUpItem::APickUpItem()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Tworzenie komponentu mesh
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	RootComponent = StaticMeshComponent;
 }
 
-// Called when the game starts or when spawned
+
 void APickUpItem::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-// Called every frame
+void APickUpItem::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	// Przypisanie mesh z struktury do komponentu Static Mesh
+	// UStaticMeshComponent* MeshComp = GetComponentByClass<UStaticMeshComponent>();
+
+	if (StaticMeshComponent && ItemStructure.Mesh)
+	{
+		StaticMeshComponent->SetStaticMesh(ItemStructure.Mesh);
+		StaticMeshComponent->SetSimulatePhysics(true);
+	}
+}
+
+
 void APickUpItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

@@ -2,38 +2,16 @@
 
 #pragma once
 
+
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "InventoryPanel.h"
+#include "InventorySlot.h"
 #include "Components/ActorComponent.h"
-#include "Components/Image.h"
-#include "Components/TextBlock.h"
 #include "InventoryComponent.generated.h"
 
 
 class UHorizontalBox;
-
-/** Struktura obiektu w inventory */
-USTRUCT(BlueprintType)
-struct FInventoryItemStructure
-{
-	GENERATED_USTRUCT_BODY()
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Name"))
-	FText Name;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Stackable", MakeStructureDefaultValue="False"))
-	bool Stackable;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Quantity", MakeStructureDefaultValue="0"))
-	int32 Quantity = 0;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Thumbnail", MakeStructureDefaultValue="None"))
-	TObjectPtr<UTexture2D> Thumbnail;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Mesh", MakeStructureDefaultValue="None"))
-	TObjectPtr<UStaticMesh> Mesh;
-};
-
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CATTEST_API UInventoryComponent : public UActorComponent
@@ -55,7 +33,12 @@ class CATTEST_API UInventoryComponent : public UActorComponent
 public:
 	UInventoryComponent();
 
-	void SetupPlayerInputComponent(UEnhancedInputComponent* EnhancedInputComponent);
+	void SetupPlayerInputComponent();
+	void RemoveItem();
+
+	// UPROPERTY(EditAnywhere)
+	// UInventorySlot* MyActorInstance;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -64,7 +47,8 @@ protected:
 	void InitializeInventory();
 	void ToggleVisibilityInventory();
 	void PickupItem();
-	void AddItem(FInventoryItemStructure Item);
+	void AddItem(FInventoryItem Item);
+
 	// Uzupełnia i dodaje sloty w inventory (OnionsBox) na podstawie Items. 
 	void RefreshInventory();
 
@@ -74,11 +58,13 @@ public:
 
 private:
 	// Obiekty w inventory
-	TArray<FInventoryItemStructure> Items;
+	TArray<FInventoryItem> Items;
+	
 	// wykrywania kolizje w formie sferycznego promienia
 	TArray<FHitResult> SphereTrace();
 
 	UInventoryPanel* InventoryWidget;
+
 
 	bool mDebug = true;
 	void mDrawSphere(FVector MidPoint, float SphereRadius) const;
