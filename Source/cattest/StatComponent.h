@@ -70,7 +70,7 @@ public:
 
     // Nowe zmienne
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-    int m_exp;
+    int m_currentExp;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     int m_maxExp;
@@ -113,6 +113,8 @@ protected:
     FTimerHandle OneSecTimer;
     UProgressBar* HealthBar;
     UProgressBar* EnergyBar;
+    UProgressBar* ExpBar;
+
     bool bIsSprinting;
     
 
@@ -126,6 +128,7 @@ public:
     void GetDamaged2(int val);
     void AffectRegeneration(int val);
     void AffectSpeed(int val);
+    void GetExp(int val);
 
     void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
     void Sprint(const FInputActionValue& Value);

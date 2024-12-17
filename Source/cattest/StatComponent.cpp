@@ -14,6 +14,9 @@ UStatComponent::UStatComponent()
     m_energyRegen = 1;
     m_sprintSpeed = 1000;
     m_baseSpeed = 600;
+    m_currentExp = 0;
+    m_lvl = 1;
+    m_maxExp =100;
 
     bIsSprinting = false;
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
@@ -40,7 +43,7 @@ void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
     
     
 
-    if (CharacterOwner && CharacterOwner->MyWidget && (!HealthBar && !EnergyBar))
+    if (CharacterOwner && CharacterOwner->MyWidget && (!HealthBar && !EnergyBar && !ExpBar))
     {
         // Rzutuj MyWidget na klasÍ BP_HUD
         UUserWidget* MyHUD = CharacterOwner->MyWidget;
@@ -48,6 +51,7 @@ void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
         // Znajdü HealthBar i StaminaBar w BP_HUD
         HealthBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("HealthBar")));
         EnergyBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("EnergyBar")));
+        ExpBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("ExpBar")));
         if (HealthBar)
         {
             UE_LOG(LogTemp, Warning, TEXT("HealthBar zosta≥ przypisany!"));
@@ -56,7 +60,7 @@ void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
         {
             UE_LOG(LogTemp, Error, TEXT("Nie uda≥o siÍ znaleüÊ HealthBar!"));
         }
-
+        GetExp(1);
 
     }
 }
@@ -111,14 +115,7 @@ void UStatComponent::Sprint(const FInputActionValue& Value)
 void UStatComponent::GetHealed2(int val)
 {
 
-    if (HealthBar)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("JEST OK!"));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("LIPA W CCHUJ"));
-    }
+    
     m_currentHealth += val;
     if (m_currentHealth > m_maxHealth)
     {
@@ -170,6 +167,29 @@ void UStatComponent::GetRegen()
         EnergyBar->SetPercent(EnergyPercentage);
     }
 }
+
+void UStatComponent::GetExp(int val)
+{
+
+
+    m_currentExp += val;
+    if (m_currentExp > m_maxExp)
+    {
+        m_currentExp -= m_maxExp;
+        m_lvl++;
+        m_maxExp *= 2;
+    }
+    
+    
+    float ExpPercentage = (float)m_currentExp / m_maxExp;
+    
+    if (ExpBar)
+    {
+        ExpBar->SetPercent(ExpPercentage);
+    }
+    
+}
+
 
 // Gettery i settery dla Health
 int UStatComponent::GetCurrentHealth() const { return m_currentHealth; }
@@ -232,8 +252,8 @@ uint8 UStatComponent::GetLuck() const { return m_lck; }
 void UStatComponent::SetLuck(uint8 NewLuck) { m_lck = NewLuck; }
 
 // Gettery i settery dla Exp i Level
-int UStatComponent::GetExp() const { return m_exp; }
-void UStatComponent::SetExp(int NewExp) { m_exp = NewExp; }
+int UStatComponent::GetExp() const { return m_currentExp; }
+void UStatComponent::SetExp(int NewExp) { m_currentExp = NewExp; }
 
 int UStatComponent::GetMaxExp() const { return m_maxExp; }
 void UStatComponent::SetMaxExp(int NewMaxExp) { m_maxExp = NewMaxExp; }
