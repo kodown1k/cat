@@ -10,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "StatComponent.h"
+
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -19,22 +21,46 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AcattestCharacter::AcattestCharacter()
 {
 	// Set size for collision capsule
+	bIsFirstPerson = true;
+	bIsCrouching3 = false;
+
+
+	// Set size for collision capsuleD
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-		
-	// Create a CameraComponent	
+
+	// SpringArm for Third-Person Camera
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraAttachmentArm"));
+	SpringArm->SetupAttachment(GetCapsuleComponent()); // Attach to the capsule
+	SpringArm->TargetArmLength = 300.0f; // Set the desired camera distance
+	SpringArm->bUsePawnControlRotation = true; // Allow camera to rotate with pawn's control rotation
+
+	// Third-Person Camera
+	ThirdPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+	ThirdPersonCameraComponent->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	ThirdPersonCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// First-Person Camera
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
-	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	FirstPersonCameraComponent->bUsePawnControlRotation = true; // Rotate camera based on controller
 
-	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
+	// Mesh for First-Person view
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
+	Mesh1P->SetupAttachment(GetCapsuleComponent());
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	
+	
+}
+
+void AcattestCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	ShowWidget();
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -54,9 +80,9 @@ void AcattestCharacter::NotifyControllerChanged()
 }
 
 void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{	
+{
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent * EnhancedInputComponent = GetOwner()->GetComponentByClass<UEnhancedInputComponent>())
 	{
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
@@ -67,6 +93,19 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AcattestCharacter::Look);
+
+		EnhancedInputComponent->BindAction(UseAction, ETriggerEvent::Triggered, this, &AcattestCharacter::Use);
+
+		// switch
+
+		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Triggered, this, &AcattestCharacter::SwitchCamera);
+		// Crouch
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AcattestCharacter::NewCrouch);
+
+		
+
+		auto StatComponent = FindComponentByClass<UStatComponent>();
+		StatComponent->SetupPlayerInputComponent(EnhancedInputComponent);
 	}
 	else
 	{
@@ -100,3 +139,92 @@ void AcattestCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+void AcattestCharacter::NewCrouch(const FInputActionValue& Value)
+{
+	if (!bIsCrouching3) // Sprawdzenie, czy postaæ nie jest ju¿ w trybie crouch
+	{
+		bIsCrouching3 = true;
+
+		// Zmieñ prêdkoœæ ruchu
+		GetCharacterMovement()->MaxWalkSpeed = m_SpeedCrouch;
+
+		// Zmieñ skalê postaci 
+
+
+		UE_LOG(LogTemp, Log, TEXT("%s is now crouching"), *GetName());
+	}
+	else if (bIsCrouching3) // Sprawdzenie, czy postaæ jest w trybie crouch
+	{
+		bIsCrouching3 = false;
+
+		// Przywróæ normaln¹ prêdkoœæ ruchu
+		GetCharacterMovement()->MaxWalkSpeed = m_SpeedWalk;
+
+		// Przywróæ normaln¹ skalê postaci
+
+
+		UE_LOG(LogTemp, Log, TEXT("%s has stopped crouching"), *GetName());
+	}
+}
+
+
+
+void AcattestCharacter::SwitchCamera(const FInputActionValue& Value)
+{
+	if (bIsFirstPerson)
+	{
+
+		// Switch to third-person camera
+
+		FirstPersonCameraComponent->SetActive(false);
+		ThirdPersonCameraComponent->SetActive(true);
+		bIsFirstPerson = false;
+	}
+	else
+	{
+		// Switch to first-person camera
+
+		FirstPersonCameraComponent->SetActive(true);
+		ThirdPersonCameraComponent->SetActive(false);
+		bIsFirstPerson = true;
+
+	}
+}
+
+void AcattestCharacter::Use(const FInputActionValue& Value)
+{
+
+}
+
+
+void AcattestCharacter::ShowWidget()
+{
+	if (GEngine)
+		
+	if (WidgetBlueprintClass) // Sprawdzenie, czy klasa widgetu zosta³a przypisana
+	{
+
+		// Stwórz instancjê widgetu
+		MyWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetBlueprintClass);
+		
+
+		if (MyWidget)
+		{
+			MyWidget->AddToViewport(); // Dodaj widget do ekranu
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "widget dodany");
+		}
+	}
+}
+
+void AcattestCharacter::RemoveCurrentWidget()
+{
+	if (MyWidget) // SprawdŸ, czy widget istnieje
+	{
+		MyWidget->RemoveFromParent(); // Usuñ widget z widoku
+		MyWidget = nullptr;           // Wyzeruj wskaŸnik widgetu
+		UE_LOG(LogTemp, Log, TEXT("Widget removed successfully"));
+	}
+}
+
