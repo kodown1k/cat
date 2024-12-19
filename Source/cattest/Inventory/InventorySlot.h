@@ -5,39 +5,15 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-
-
+#include "InventoryItemStructure.h"
 #include "InventorySlot.generated.h"
 
-/** Struktura obiektu w inventory */
-USTRUCT(BlueprintType)
-struct FInventoryItem
-{
-	GENERATED_BODY()
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Name"))
-	FText Name;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Stackable", MakeStructureDefaultValue="False"))
-	bool Stackable;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Quantity", MakeStructureDefaultValue="0"))
-	int32 Quantity = 0;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Thumbnail", MakeStructureDefaultValue="None"))
-	TObjectPtr<UTexture2D> Thumbnail;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Mesh", MakeStructureDefaultValue="None"))
-	TObjectPtr<UStaticMesh> Mesh;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="SpawnSound", MakeStructureDefaultValue="None"))
-	USoundBase* SpawnSound;
-};
+class UInventoryComponent;
 
 /**
  * Slot na itemy w inventory 
  */
-// DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMyDelegate, int, Index);
-
 UCLASS()
 class CATTEST_API UInventorySlot : public UUserWidget
 {
@@ -59,8 +35,7 @@ public:
 
 	int index;
 
-	// UPROPERTY(BlueprintAssignable)
-	// FMyDelegate OnMyEvent;
+	void SetInventoryComponent(UInventoryComponent* InventoryComponent);
 
 protected:
 	virtual void NativePreConstruct() override;
@@ -68,4 +43,5 @@ protected:
 private:
 	UFUNCTION()
 	void OnItemButtonClicked();
+	UInventoryComponent* m_inventoryComponent;
 };

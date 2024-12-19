@@ -5,8 +5,9 @@
 
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
+#include "InventoryItemStructure.h"
 #include "InventoryPanel.h"
-#include "InventorySlot.h"
+class UInventorySlot;
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
@@ -34,11 +35,7 @@ public:
 	UInventoryComponent();
 
 	void SetupPlayerInputComponent();
-	void RemoveItem();
-
-	// UPROPERTY(EditAnywhere)
-	// UInventorySlot* MyActorInstance;
-
+	void RemoveItem(int index);
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,11 +54,15 @@ public:
 	void log(FString msg) const;
 
 private:
+	UPROPERTY(EditAnywhere)
+	float GrabRange = 200.0f;
+
 	// Obiekty w inventory
 	TArray<FInventoryItem> Items;
-	
+
 	// wykrywania kolizje w formie sferycznego promienia
 	TArray<FHitResult> SphereTrace();
+	TArray<FHitResult> LineTrace();
 
 	UInventoryPanel* InventoryWidget;
 

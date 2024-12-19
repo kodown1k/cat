@@ -1,7 +1,11 @@
-#include "InventorySlot.h"
-
+#include "InventoryComponent.h"
 #include "PickUpItem.h"
 #include "Kismet/GameplayStatics.h"
+
+void UInventorySlot::SetInventoryComponent(UInventoryComponent* InventoryComponent)
+{
+	m_inventoryComponent = InventoryComponent;
+}
 
 void UInventorySlot::NativePreConstruct()
 {
@@ -55,9 +59,10 @@ void UInventorySlot::OnItemButtonClicked()
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SItem.SpawnSound, Start);
 	}
 
-	// if (UInventoryComponent* InventoryComponent = GetWorld()->GetFirstPlayerController()->GetComponentByClass<UInventoryComponent>())
+	// if (UInventoryComponent* InventoryComponent = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetComponentByClass<UInventoryComponent>())
 	// {
+	// 	
 	// 	UE_LOG(LogTemp, Display, TEXT("Inventory Component Getted"));
-	// 	// InventoryComponent->RemoveItem(index);
+	m_inventoryComponent->RemoveItem(index);
 	// }
 }

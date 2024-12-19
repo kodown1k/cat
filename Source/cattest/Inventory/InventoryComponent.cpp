@@ -1,7 +1,6 @@
 #include "InventoryComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InventoryPanel.h"
-#include "InventorySlot.h"
 #include "PickUpItem.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -29,11 +28,6 @@ void UInventoryComponent::BeginPlay()
 
 	InitializeInventory();
 	SetupPlayerInputComponent();
-
-	// if (MyActorInstance)
-	// {
-	// 	MyActorInstance->OnMyEvent.AddDynamic(this, &UInventoryComponent::RemoveItem);
-	// }
 }
 
 void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -102,6 +96,7 @@ void UInventoryComponent::RefreshInventory()
 		{
 			Slot->SItem = item;
 			Slot->index = index;
+			Slot->SetInventoryComponent(this);
 			InventoryWidget->OnionsBox->AddChildToHorizontalBox(Slot);
 			++index;
 		}
@@ -124,6 +119,13 @@ void UInventoryComponent::PickupItem()
 			AddItem(PickUpItem->ItemStructure);
 			RefreshInventory();
 			PickUpItem->Destroy();
+			if (PickUpItem->ItemStructure.SpawnSound)
+			{
+				FVector Start;
+				FRotator CameraRotation;
+				GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, CameraRotation);
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickUpItem->ItemStructure.SpawnSound, Start);
+			}
 			return;
 		}
 	}
@@ -133,19 +135,17 @@ void UInventoryComponent::PickupItem()
 TArray<FHitResult> UInventoryComponent::SphereTrace()
 {
 	TArray<FHitResult> HitResults;
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (!PlayerCharacter)
-	{
-		return HitResults;
-	}
+	FVector Start;
+	FRotator CameraRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, CameraRotation);
+	FVector End = Start + CameraRotation.Vector() * GrabRange / 2;
+	Start -= FVector(0, 0, GrabRange);
 
-	FVector Start = PlayerCharacter->GetActorLocation() + FVector(100, 0, 0);
-	FVector End = Start - FVector(0, 0, 65);
-
-	float SphereRadius = 130.0f; // Promień sfery
+	float SphereRadius = GrabRange / 2;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.bTraceComplex = true;
-	CollisionParams.AddIgnoredActor(PlayerCharacter); // Ignoruj siebie
+	// CollisionParams.AddIgnoredActor(PlayerCharacter); // Ignoruj siebie
+
 
 	// Wykonaj tracing
 	GetWorld()->SweepMultiByChannel(
@@ -160,6 +160,19 @@ TArray<FHitResult> UInventoryComponent::SphereTrace()
 
 	mDrawSphere((Start + End) / 2.0f, SphereRadius);
 
+	return HitResults;
+}
+
+TArray<FHitResult> UInventoryComponent::LineTrace()
+{
+	TArray<FHitResult> HitResults;
+	FVector Start;
+	FRotator CameraRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, CameraRotation);
+	FVector End = Start + CameraRotation.Vector() * GrabRange;
+
+	GetWorld()->LineTraceMultiByChannel(HitResults, Start, End, ECC_Visibility);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5, 0, 4);
 	return HitResults;
 }
 
@@ -191,23 +204,23 @@ void UInventoryComponent::AddItem(FInventoryItem Item)
 	Items.Insert(Item, 0);
 }
 
-void UInventoryComponent::RemoveItem()
+void UInventoryComponent::RemoveItem(int index)
 {
-	// if (Items.IsValidIndex(index))
-	// {
-	// 	FInventoryItemStructure Item = Items[index];
-	// 	UE_LOG(LogTemp, Display, TEXT("Removing Item: %s"), *Item.Name.ToString());
-	// 	--Item.Quantity;
-	// 	if (Item.Quantity == 0)
-	// 	{
-	// 		Items.RemoveAt(index);
-	// 	}
-	// 	RefreshInventory();
-	// }
-	// else
-	// {
-	UE_LOG(LogTemp, Display, TEXT("Mamy problem"));
-	// }
+	if (Items.IsValidIndex(index))
+	{
+		FInventoryItem Item = Items[index];
+		UE_LOG(LogTemp, Display, TEXT("Removing Item: %s"), *Item.Name.ToString());
+		--Item.Quantity;
+		if (Item.Quantity == 0)
+		{
+			Items.RemoveAt(index);
+		}
+		RefreshInventory();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("Mamy problem"));
+	}
 }
 
 
