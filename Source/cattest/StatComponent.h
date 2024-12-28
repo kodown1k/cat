@@ -2,7 +2,12 @@
 
 #pragma once
 
+#include "DamageInterface.h"
+
+#include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "EnhancedInputModule.h"
+
 #include "cattestCharacter.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -12,7 +17,7 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class CATTEST_API UStatComponent : public UActorComponent
+class CATTEST_API UStatComponent : public UActorComponent, public IDamageInterface
 {
 	GENERATED_BODY()
 
@@ -20,6 +25,8 @@ class CATTEST_API UStatComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UStatComponent();
+
+    
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     int m_currentHealth;
@@ -96,7 +103,7 @@ public:
     uint8 m_lck;
 
     AcattestCharacter* CattestCharacter;
-
+   
     //AKCJE
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -116,6 +123,7 @@ protected:
     UProgressBar* ExpBar;
 
     bool bIsSprinting;
+    bool bIsDead;
     
 
     
@@ -125,6 +133,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     void GetHealed2(int val);
     void GetRegen();
+    virtual void GetDamaged(int DamageAmount) override;
     void GetDamaged2(int val);
     void AffectRegeneration(int val);
     void AffectSpeed(int val);

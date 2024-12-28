@@ -6,18 +6,20 @@
 // Sets default values for this component's properties
 UStatComponent::UStatComponent()
 {
+    CattestCharacter = Cast<AcattestCharacter>(GetOwner());
     m_currentHealth = 50;
     m_maxHealth = 100;
     m_currentEnergy = 50;
     m_maxEnergy = 100;
     m_healthRegen = 1;
-    m_energyRegen = 1;
+    m_energyRegen = 10;
     m_sprintSpeed = 1000;
     m_baseSpeed = 600;
     m_currentExp = 0;
     m_lvl = 1;
     m_maxExp =100;
 
+    bIsDead = false;
     bIsSprinting = false;
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -60,9 +62,10 @@ void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
         {
             UE_LOG(LogTemp, Error, TEXT("Nie uda³o siê znaleŸæ HealthBar!"));
         }
-        GetExp(1);
-
+        UE_LOG(LogTemp, Error, TEXT("po cco to sie wywolalo ?!"));
     }
+    
+
 }
 
 void UStatComponent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponentc) {
@@ -114,7 +117,9 @@ void UStatComponent::Sprint(const FInputActionValue& Value)
 
 void UStatComponent::GetHealed2(int val)
 {
-
+    if (bIsDead) {
+        return;
+    }
     
     m_currentHealth += val;
     if (m_currentHealth > m_maxHealth)
@@ -132,19 +137,116 @@ void UStatComponent::GetHealed2(int val)
     // Uzyskaj dostêp do postaci
 
 };
+
+void UStatComponent::GetDamaged2(int val)
+{
+    if (bIsDead) {
+        return;
+    }
+
+    m_currentHealth -= val;
+    if (m_currentHealth <= 0 && !bIsDead)
+    {
+        m_currentHealth = 0;
+        bIsDead = true;
+        if (APlayerController* PlayerController = Cast<APlayerController>(CattestCharacter->GetController()))
+        {
+            if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+            {
+                Subsystem->ClearAllMappings();
+                UE_LOG(LogTemp, Log, TEXT("Player input disabled using Enhanced Input."));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to access Enhanced Input Subsystem."));
+            }
+            if (USkeletalMeshComponent* Mesh = CattestCharacter->GetMesh())
+            {
+                Mesh->SetSimulatePhysics(true); // W³¹cz symulacjê fizyki
+                Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
+                UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the player mesh."));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to access player mesh."));
+            }
+        }
+    }
+
+    float HealthPercentage = (float)m_currentHealth / m_maxHealth;
+
+    if (HealthBar)
+    {
+        HealthBar->SetPercent(HealthPercentage);
+    }
+
+    // Uzyskaj dostêp do postaci
+
+};
+
+void UStatComponent::GetDamaged(int DamageAmount)
+{
+    if (bIsDead) {
+        return;
+    }
+
+    m_currentHealth -= DamageAmount;
+    if (m_currentHealth <= 0 && !bIsDead)
+    {
+        m_currentHealth = 0;
+        bIsDead = true;
+        if (APlayerController* PlayerController = Cast<APlayerController>(CattestCharacter->GetController()))
+        {
+            if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+            {
+                Subsystem->ClearAllMappings();
+                UE_LOG(LogTemp, Log, TEXT("Player input disabled using Enhanced Input."));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to access Enhanced Input Subsystem."));
+            }
+            if (USkeletalMeshComponent* Mesh = CattestCharacter->GetMesh())
+            {
+                Mesh->SetSimulatePhysics(true); // W³¹cz symulacjê fizyki
+                Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
+                UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the player mesh."));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to access player mesh."));
+            }
+        }
+    }
+
+    float HealthPercentage = (float)m_currentHealth / m_maxHealth;
+
+    if (HealthBar)
+    {
+        HealthBar->SetPercent(HealthPercentage);
+    }
+
+    // Uzyskaj dostêp do postaci
+
+};
+
 void UStatComponent::GetRegen()
 {
-
+    if (bIsDead) {
+        return;
+    }
     
     m_currentHealth += m_healthRegen;
     if (m_currentHealth > m_maxHealth)
     {
         m_currentHealth = m_maxHealth;
     }
-    m_currentEnergy += m_energyRegen;
-    if (m_currentEnergy > m_maxEnergy)
-    {
-        m_currentEnergy = m_maxEnergy;
+    if (!bIsSprinting) {
+        m_currentEnergy += m_energyRegen;
+        if (m_currentEnergy > m_maxEnergy)
+        {
+            m_currentEnergy = m_maxEnergy;
+        }
     }
     if (bIsSprinting) {
         m_currentEnergy -= 10;

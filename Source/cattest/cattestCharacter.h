@@ -3,6 +3,8 @@
 #pragma once
 
 //Dodane Biblioteki
+#include "DamageInterface.h"
+
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blueprint/UserWidget.h"
