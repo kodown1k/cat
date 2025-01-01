@@ -97,9 +97,25 @@ public:
 
 	AcattestCharacter();
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> WidgetBlueprintClass;
+	// APawn interface
+	virtual void NotifyControllerChanged() override;
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+	virtual void BeginPlay() override;
 
+	// End of APawn interface
+	/** Returns Mesh1P subobject **/
+	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	/** Returns FirstPersonCameraComponent subobject **/
+	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+	UCameraComponent* GetThirdPersonCameraComponent() const { return ThirdPersonCameraComponent; }
+	UUserWidget* MyWidget;
+
+	bool GetIsCrouching() const {
+		return bIsCrouching3;
+	}
 
 protected:
 
@@ -127,20 +143,10 @@ protected:
 	void RemoveCurrentWidget();
 
 protected:
-	// APawn interface
-	virtual void NotifyControllerChanged() override;
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	virtual void BeginPlay() override;
 	
-	// End of APawn interface
 
 	/*void ShowWidget();*/
 
 public:
-	/** Returns Mesh1P subobject **/
-	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	/** Returns FirstPersonCameraComponent subobject **/
-	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
-	UCameraComponent* GetThirdPersonCameraComponent() const { return ThirdPersonCameraComponent; }
-	UUserWidget* MyWidget;
+	
 };

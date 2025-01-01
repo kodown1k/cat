@@ -81,8 +81,10 @@ void UStatComponent::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void UStatComponent::Sprint(const FInputActionValue& Value)
 {
-    ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner()); // Pobieramy w³aœciciela komponentu (Actor)
-
+    AcattestCharacter* CharacterOwner = Cast<AcattestCharacter>(GetOwner()); // Pobieramy w³aœciciela komponentu (Actor)
+    if (CharacterOwner->GetIsCrouching()) {
+        return;
+    }
     // Sprawdzenie, czy w³aœciciel komponentu jest prawid³owy
     if (!CharacterOwner)
     {
