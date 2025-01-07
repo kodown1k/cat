@@ -16,9 +16,8 @@ ABaseEnemy::ABaseEnemy()
 void ABaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
 
-	UE_LOG(LogTemp, Warning, TEXT("Hello========================"));
+	// Ustawienie pocz¹tkowej liczby punktów ¿ycia
 	Health = MaxHealth;
 }
 
@@ -26,10 +25,18 @@ void ABaseEnemy::Death()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Actor Dies"));
 	bIsDead = true;
+
+	// Od³¹czenie od klasy Kontrolera
 	DetachFromControllerPendingDestroy();
+	// Wy³¹czenie kolizji na komponencie kapsu³y
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// Ustawienie kolizji na meshu aby dotyczy³a tylko zdarzeñ wynikaj¹cych z fizyki
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	
+	// Nastêpne funkcjonalnoœci mog¹ byæ póŸniej usuniête
+	// W³¹czenie dzia³ania fizyki na mesh
 	GetMesh()->SetSimulatePhysics(true);
+	// Ustawienie usuniêcia postaci
 	SetLifeSpan(5);
 }
 
