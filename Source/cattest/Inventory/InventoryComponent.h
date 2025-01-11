@@ -67,6 +67,6 @@ private:
 	UInventoryPanel* InventoryWidget;
 
 
-	bool mDebug = true;
+	bool mDebug = false;
 	void mDrawSphere(FVector MidPoint, float SphereRadius) const;
 };
