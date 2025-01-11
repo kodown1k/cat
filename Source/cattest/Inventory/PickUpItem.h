@@ -7,6 +7,9 @@
 #include "GameFramework/Actor.h"
 #include "PickUpItem.generated.h"
 
+
+class USphereComponent;
+
 UCLASS()
 class CATTEST_API APickUpItem : public AActor
 {
@@ -30,4 +33,38 @@ public:
 
 	UPROPERTY()
 	UStaticMeshComponent* StaticMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+	UMaterialInterface* OverlayMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+	UMaterialInstanceDynamic* DynamicMaterial;
+
+	UPROPERTY(VisibleDefaultsOnly, Category=Item)
+	USphereComponent* SphereCollision;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+	FCollisionProfileName CollisionProfile;
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
+	                    AActor* OtherActor,
+	                    UPrimitiveComponent* OtherComp,
+	                    int32 OtherBodyIndex,
+	                    bool bFromSweep,
+	                    const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void SetupCollisions();
+
+	void log(FString msg) const;
+
+private:
+	float CurrentLineThickness = 0.0f;
+	float TargetLineThickness = 0.0f;
+	float MaxTargetThickness = 0.5;
+	float LerpSpeed = 0.0;
+	bool bIsOverlapping = false;
 };

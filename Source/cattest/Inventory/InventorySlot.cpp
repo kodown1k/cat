@@ -40,11 +40,13 @@ void UInventorySlot::OnItemButtonClicked()
 	FRotator CameraRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, CameraRotation);
 
-	UE_LOG(LogTemp, Display, TEXT("Clicked"));
-
+	bool bNoCollisionFail = true;
 	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = bNoCollisionFail
+		                                             ? ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+		                                             : ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), Start + FVector(100, 0, 0), CameraRotation, SpawnParams);
+	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), Start + FVector(200, 200, 200), CameraRotation, SpawnParams);
 
 	PickUpItem->StaticMeshComponent->SetStaticMesh(SItem.Mesh);
 	PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);
@@ -59,10 +61,5 @@ void UInventorySlot::OnItemButtonClicked()
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SItem.SpawnSound, Start);
 	}
 
-	// if (UInventoryComponent* InventoryComponent = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetComponentByClass<UInventoryComponent>())
-	// {
-	// 	
-	// 	UE_LOG(LogTemp, Display, TEXT("Inventory Component Getted"));
 	m_inventoryComponent->RemoveItem(index);
-	// }
 }
