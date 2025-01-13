@@ -271,7 +271,7 @@ void UStatComponent::GetDamaged(int DamageAmount)
         {
             // Ustaw now¹ lokalizacjê w³aœciciela
             
-            Owner->SetActorLocation(NewLocation);
+           // Owner->SetActorLocation(NewLocation);
         }
     }
 

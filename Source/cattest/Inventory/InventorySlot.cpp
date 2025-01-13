@@ -1,3 +1,4 @@
+#include "inventorySlot.h"
 #include "InventoryComponent.h"
 #include "PickUpItem.h"
 #include "Kismet/GameplayStatics.h"
