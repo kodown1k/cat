@@ -11,6 +11,7 @@
 
 //
 #include "CoreMinimal.h"
+#include "Inventory/InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "cattestCharacter.generated.h"
@@ -60,6 +61,7 @@ class AcattestCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+
 	/** Switcch Camera */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwitchAction;
@@ -93,13 +95,16 @@ class AcattestCharacter : public ACharacter
 	int m_SpeedWalk = 600;
 
 
+
 public:
 
 	AcattestCharacter();
 
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> WidgetBlueprintClass;
+
 	// APawn interface
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -110,6 +115,7 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
 	UCameraComponent* GetThirdPersonCameraComponent() const { return ThirdPersonCameraComponent; }
 	UUserWidget* MyWidget;
 
@@ -149,4 +155,5 @@ protected:
 
 public:
 	
+
 };

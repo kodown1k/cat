@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "ToolBuilderUtil.h"
 #include "Engine/LocalPlayer.h"
 #include "StatComponent.h"
 
@@ -28,6 +29,7 @@ AcattestCharacter::AcattestCharacter()
 	// Set size for collision capsuleD
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
+
 	// SpringArm for Third-Person Camera
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraAttachmentArm"));
 	SpringArm->SetupAttachment(GetCapsuleComponent()); // Attach to the capsule
@@ -40,6 +42,9 @@ AcattestCharacter::AcattestCharacter()
 	ThirdPersonCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// First-Person Camera
+
+	// Create a CameraComponent	
+
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
@@ -52,9 +57,6 @@ AcattestCharacter::AcattestCharacter()
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-
-	
-	
 }
 
 void AcattestCharacter::BeginPlay()
@@ -72,7 +74,8 @@ void AcattestCharacter::NotifyControllerChanged()
 	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
+			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
@@ -109,7 +112,10 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	}
 	else
 	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		UE_LOG(LogTemplateCharacter, Error,
+		       TEXT(
+			       "'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+		       ), *GetNameSafe(this));
 	}
 }
 
@@ -140,28 +146,29 @@ void AcattestCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+
 void AcattestCharacter::NewCrouch(const FInputActionValue& Value)
 {
-	if (!bIsCrouching3) // Sprawdzenie, czy postaæ nie jest ju¿ w trybie crouch
+	if (!bIsCrouching3) // Sprawdzenie, czy postaï¿½ nie jest juï¿½ w trybie crouch
 	{
 		bIsCrouching3 = true;
 
-		// Zmieñ prêdkoœæ ruchu
+		// Zmieï¿½ prï¿½dkoï¿½ï¿½ ruchu
 		GetCharacterMovement()->MaxWalkSpeed = m_SpeedCrouch;
 
-		// Zmieñ skalê postaci 
+		// Zmieï¿½ skalï¿½ postaci 
 
 
 		UE_LOG(LogTemp, Log, TEXT("%s is now crouching"), *GetName());
 	}
-	else if (bIsCrouching3) // Sprawdzenie, czy postaæ jest w trybie crouch
+	else if (bIsCrouching3) // Sprawdzenie, czy postaï¿½ jest w trybie crouch
 	{
 		bIsCrouching3 = false;
 
-		// Przywróæ normaln¹ prêdkoœæ ruchu
+		// Przywrï¿½ï¿½ normalnï¿½ prï¿½dkoï¿½ï¿½ ruchu
 		GetCharacterMovement()->MaxWalkSpeed = m_SpeedWalk;
 
-		// Przywróæ normaln¹ skalê postaci
+		// Przywrï¿½ï¿½ normalnï¿½ skalï¿½ postaci
 
 
 		UE_LOG(LogTemp, Log, TEXT("%s has stopped crouching"), *GetName());
@@ -202,10 +209,10 @@ void AcattestCharacter::ShowWidget()
 {
 	if (GEngine)
 		
-	if (WidgetBlueprintClass) // Sprawdzenie, czy klasa widgetu zosta³a przypisana
+	if (WidgetBlueprintClass) // Sprawdzenie, czy klasa widgetu zostaï¿½a przypisana
 	{
 
-		// Stwórz instancjê widgetu
+		// Stwï¿½rz instancjï¿½ widgetu
 		MyWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetBlueprintClass);
 		
 
@@ -220,11 +227,12 @@ void AcattestCharacter::ShowWidget()
 
 void AcattestCharacter::RemoveCurrentWidget()
 {
-	if (MyWidget) // SprawdŸ, czy widget istnieje
+	if (MyWidget) // Sprawdï¿½, czy widget istnieje
 	{
-		MyWidget->RemoveFromParent(); // Usuñ widget z widoku
-		MyWidget = nullptr;           // Wyzeruj wskaŸnik widgetu
+		MyWidget->RemoveFromParent(); // Usuï¿½ widget z widoku
+		MyWidget = nullptr;           // Wyzeruj wskaï¿½nik widgetu
 		UE_LOG(LogTemp, Log, TEXT("Widget removed successfully"));
 	}
 }
+
 
