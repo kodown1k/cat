@@ -37,9 +37,8 @@ void UInventorySlot::NativePreConstruct()
 
 void UInventorySlot::OnItemButtonClicked()
 {
-	FVector Start;
-	FRotator CameraRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, CameraRotation);
+	FVector Start = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+	FRotator ActorRotation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation();
 
 	bool bNoCollisionFail = true;
 	FActorSpawnParameters SpawnParams;
@@ -47,7 +46,7 @@ void UInventorySlot::OnItemButtonClicked()
 		                                             ? ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 		                                             : ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), Start + FVector(200, 200, 200), CameraRotation, SpawnParams);
+	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), Start + FVector(200, 200, 200), ActorRotation, SpawnParams);
 
 	PickUpItem->StaticMeshComponent->SetStaticMesh(SItem.Mesh);
 	PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);

@@ -135,19 +135,18 @@ void UInventoryComponent::PickupItem()
 TArray<FHitResult> UInventoryComponent::SphereTrace()
 {
 	TArray<FHitResult> HitResults;
-	FVector Start;
-	FRotator CameraRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, CameraRotation);
-	FVector End = Start + CameraRotation.Vector() * GrabRange / 2;
-	Start -= FVector(0, 0, GrabRange);
+
+	FVector Start = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+	FRotator ActorRotation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation();
+
+	FVector ForwardVector = ActorRotation.Vector();
+	FVector End = Start + ForwardVector * (GrabRange / 2);
+	Start -= FVector(0, 0, GrabRange / 2);
 
 	float SphereRadius = GrabRange / 2;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.bTraceComplex = true;
-	// CollisionParams.AddIgnoredActor(PlayerCharacter); // Ignoruj siebie
 
-
-	// Wykonaj tracing
 	GetWorld()->SweepMultiByChannel(
 		HitResults,
 		Start,
