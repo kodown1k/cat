@@ -5,6 +5,16 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputModule.h"
+
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
+#include "CollisionQueryParams.h"
+
+#include "GameFramework/Character.h"
+#include "cattestCharacter.h"
+
+#include "Components/ArrowComponent.h"
+#include "Kismet/KismetMathLibrary.h" 
 #include "AttackSystemComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwordAttack, const FInputActionValue&, Value);
@@ -43,6 +53,20 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void ResetAttack();
 
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void SwordTraceLoop();
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void SwordTraceLoopKick();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StartSwordTrace();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StartAttackComboTimer();
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StopAttackComboTimer();
+	
+	TSet<AActor*> AlreadyDamagedActors;
 	// Indeks ataku (np. combo)
 	int32 AttackIndex = 0;
 
@@ -55,26 +79,31 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	TArray<UAnimMontage*> AttackMontages;
 
-
+	UArrowComponent* ArrowTopPoint;
+	UArrowComponent* ArrowBottomPoint;
+	UArrowComponent* ArrowSpherePoint;
+	TArray<UArrowComponent*> ArrowComponents;
 	
 
 
-
 protected:
+
 	FTimerHandle AttackComboTimerHandle;
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void PlayMontage();
-
 	TArray<bool> AnimationsLock;
 	
 
 	// Funkcja do wywo³ania delegata
 	void TriggerOnSwordAttack();
 
-	// Funkcja do resetowania ataku (resetuje flagi i indeks ataku)
 	
+	void PerformSphereTrace(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel, bool bDrawDebug);
+	void PerformSphereTrace2(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel, bool bDrawDebug);
+	void OnAttackComboTimerEnd();
+
 
 public:
 	// Called every frame

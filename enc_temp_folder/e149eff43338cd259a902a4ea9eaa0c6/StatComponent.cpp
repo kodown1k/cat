@@ -266,13 +266,6 @@ void UStatComponent::GetDamaged(int DamageAmount)
     else if (m_currentHealth > 0 && !bIsDead) {
         UE_LOG(LogTemp, Error, TEXT("MONTAGE HIT"));
         PlayMontage();
-        AActor* Owner = GetOwner();
-        if (Owner)
-        {
-            // Ustaw now¹ lokalizacjê w³aœciciela
-            
-            Owner->SetActorLocation(NewLocation);
-        }
     }
 
     float HealthPercentage = (float)m_currentHealth / m_maxHealth;

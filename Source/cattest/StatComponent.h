@@ -108,6 +108,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* SprintAction;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    TArray<UAnimMontage*> ReactDamageMontages;
     
     
 
@@ -115,6 +118,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+    void PlayMontage();
+    TArray<bool> AnimationsLock;
     
 
     FTimerHandle OneSecTimer;
