@@ -37,6 +37,11 @@ void UInventorySlot::NativePreConstruct()
 
 void UInventorySlot::OnItemButtonClicked()
 {
+	if (SItem.Quantity <= 0)
+	{
+		return;
+	}
+
 	FVector Start = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 	FRotator ActorRotation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation();
 
