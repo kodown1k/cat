@@ -43,5 +43,7 @@ protected:
 private:
 	UFUNCTION()
 	void OnItemButtonClicked();
+
+	UPROPERTY()
 	UInventoryComponent* m_inventoryComponent;
 };
