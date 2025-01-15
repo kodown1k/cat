@@ -64,6 +64,7 @@ private:
 	TArray<FHitResult> SphereTrace();
 	TArray<FHitResult> LineTrace();
 
+	UPROPERTY()
 	UInventoryPanel* InventoryWidget;
 
 
