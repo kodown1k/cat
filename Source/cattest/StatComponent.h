@@ -123,8 +123,11 @@ protected:
     
 
     FTimerHandle OneSecTimer;
+	UPROPERTY()
     UProgressBar* HealthBar;
+	UPROPERTY()
     UProgressBar* EnergyBar;
+	UPROPERTY()
     UProgressBar* ExpBar;
 
     bool bIsSprinting;

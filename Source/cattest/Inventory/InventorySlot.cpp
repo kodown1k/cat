@@ -42,17 +42,18 @@ void UInventorySlot::OnItemButtonClicked()
 		return;
 	}
 
-	FVector Start = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
-	FRotator ActorRotation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorRotation();
+	APawn* PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetPawn();
+	if (!PlayerCharacter) return;
+	
+	FVector ForwardVector = PlayerCharacter->GetActorForwardVector();
+	FVector SpawnLocation = PlayerCharacter->GetActorLocation() + ForwardVector * 100.0f; // 100 cm to 1 metr
+	FRotator ActorRotation = PlayerCharacter->GetActorRotation();
 
-	bool bNoCollisionFail = true;
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = bNoCollisionFail
-		                                             ? ESpawnActorCollisionHandlingMethod::AlwaysSpawn
-		                                             : ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), Start + FVector(200, 200, 200), ActorRotation, SpawnParams);
-
+	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), SpawnLocation, ActorRotation, SpawnParams);
+	
 	PickUpItem->StaticMeshComponent->SetStaticMesh(SItem.Mesh);
 	PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);
 	if (PickUpItem)
@@ -63,7 +64,7 @@ void UInventorySlot::OnItemButtonClicked()
 
 	if (SItem.SpawnSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SItem.SpawnSound, Start);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SItem.SpawnSound, SpawnLocation);
 	}
 
 	m_inventoryComponent->RemoveItem(index);

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/HorizontalBox.h"
-#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "InventoryPanel.generated.h"
 
@@ -26,7 +25,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UTextBlock* HeaderText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	UImage* BackgroundImage;
 };

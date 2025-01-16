@@ -21,11 +21,11 @@ void UAttackSystemComponent::BeginPlay()
     GetOwner()->GetComponents<UArrowComponent>(ArrowComponents);
 
     // Sprawdzamy, czy mamy co najmniej 2 komponenty
-    if (ArrowComponents.Num() >= 2)
+    if (ArrowComponents.Num() >= 3)
     {
-        ArrowTopPoint = ArrowComponents[1];    // Przypisujemy pierwszy komponent
-        ArrowBottomPoint = ArrowComponents[2]; // Przypisujemy drugi komponent
-        ArrowSpherePoint = ArrowComponents[3]; // Przypisujemy drugi komponent
+        ArrowTopPoint = ArrowComponents[0];    // Przypisujemy pierwszy komponent
+        ArrowBottomPoint = ArrowComponents[1]; // Przypisujemy drugi komponent
+        ArrowSpherePoint = ArrowComponents[2]; // Przypisujemy drugi komponent
         UE_LOG(LogTemp, Warning, TEXT("ArrowTopPoint: %s"), *ArrowTopPoint->GetName());
         UE_LOG(LogTemp, Warning, TEXT("ArrowBottomPoint: %s"), *ArrowBottomPoint->GetName());
         UE_LOG(LogTemp, Warning, TEXT("ArrowBottomPoint: %s"), *ArrowBottomPoint->GetName());
@@ -43,7 +43,7 @@ void UAttackSystemComponent::BeginPlay()
 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(GetOwner()->InputComponent);
 		if (EnhancedInputComponent)
 		{
-			// Zwiπzanie akcji z metodπ SwordAttack
+			// ZwiƒÖzanie akcji z metodƒÖ SwordAttack
 			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &UAttackSystemComponent::SwordAttack);
 		}
 	}
@@ -78,10 +78,10 @@ void UAttackSystemComponent::SwordAttackLogic()
     //    UE_LOG(LogTemp, Warning, TEXT("Index %d"), AttackIndex);
     //    UE_LOG(LogTemp, Warning, TEXT("Indexmon %d"), AttackMontages.Num());
 
-    //    // Zainicjowanie combo (jeúli saveAttack = false, moøna przejúÊ do kolejnego ataku)
+    //    // Zainicjowanie combo (je≈õli saveAttack = false, mo≈ºna przej≈õƒá do kolejnego ataku)
     //    if (!saveAttack)
     //    {
-    //        // Jeúli atak jest zapiszony, wykonaj logikÍ combo
+    //        // Je≈õli atak jest zapiszony, wykonaj logikƒô combo
     //        if (AttackIndex < AttackMontages.Num())
     //        {
     //            if (UAnimInstance* AnimInstance = GetOwner()->FindComponentByClass<USkeletalMeshComponent>()->GetAnimInstance())
@@ -98,7 +98,7 @@ void UAttackSystemComponent::SwordAttackLogic()
     //    }
     //   
 
-    //    // Sprawdzenie, czy mamy wystarczajπcπ liczbÍ montaøÛw do odtworzenia
+    //    // Sprawdzenie, czy mamy wystarczajƒÖcƒÖ liczbƒô monta≈º√≥w do odtworzenia
     //   
     //    else
     //    {
@@ -156,7 +156,7 @@ void UAttackSystemComponent::PlayMontage() {
 
 void UAttackSystemComponent::TriggerOnSwordAttack()
 {
-	// Broadcastuje delegata, ktÛry moøe zostaÊ subskrybowany przez inne klasy
+	// Broadcastuje delegata, kt√≥ry mo≈ºe zostaƒá subskrybowany przez inne klasy
 	OnSwordAttack.Broadcast(FInputActionValue());
 	
 }
@@ -215,7 +215,7 @@ void UAttackSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UAttackSystemComponent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Moøesz zarejestrowaÊ dodatkowe akcje wejúciowe, jeúli to konieczne
+	// Mo≈ºesz zarejestrowaƒá dodatkowe akcje wej≈õciowe, je≈õli to konieczne
 }
 
 void UAttackSystemComponent::StartAttackComboTimer()
@@ -223,7 +223,7 @@ void UAttackSystemComponent::StartAttackComboTimer()
     GetWorld()->GetTimerManager().SetTimer(
         AttackComboTimerHandle,     // Uchwyt timera
         this,                       // Obiekt
-        &UAttackSystemComponent::SwordTraceLoop, // Funkcja, ktÛra zostanie wywo≥ana
+        &UAttackSystemComponent::SwordTraceLoop, // Funkcja, kt√≥ra zostanie wywo≈Çana
         0.02f,                       // Czas w sekundach
         true                      // cycling timer
     );
@@ -255,9 +255,9 @@ void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FV
     // Parametry kolizji
     FCollisionQueryParams TraceParams(FName(TEXT("CapsuleTraceMulti")), true);
     TraceParams.bTraceComplex = true;
-    TraceParams.AddIgnoredActor(GetOwner()); // Ignorowanie w≥aúciciela
+    TraceParams.AddIgnoredActor(GetOwner()); // Ignorowanie w≈Ça≈õciciela
 
-    // Wyniki úladu
+    // Wyniki ≈õladu
     TArray<FHitResult> HitResults;
 
     FVector Direction = End - Start;
@@ -268,7 +268,7 @@ void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FV
     FRotator rotation = UKismetMathLibrary::FindLookAtRotation(Start, End).Add(90, 0, 0);
     FVector CapsuleCenter = (Start + End) * 0.5f;
 
-    // Wykonaj wiele trafieÒ
+    // Wykonaj wiele trafie≈Ñ
     bool bHit = World->SweepMultiByChannel(
         HitResults,
         Start,
@@ -294,10 +294,10 @@ void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FV
         );
     }
 
-    // ZbiÛr do przechowywania juø trafionych aktorÛw (unikniÍcie wielokrotnego przetwarzania)
+    // Zbi√≥r do przechowywania ju≈º trafionych aktor√≥w (unikniƒôcie wielokrotnego przetwarzania)
     
 
-    // Obs≥uga wynikÛw
+    // Obs≈Çuga wynik√≥w
     if (bHit)
     {
         
@@ -313,7 +313,7 @@ void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FV
                 UStatComponent* Damagable = HitActor->FindComponentByClass<UStatComponent>();
                 if (Damagable)
                 {
-                    Damagable->GetDamaged(10); // Zadaj obraøenia
+                    Damagable->GetDamaged(10); // Zadaj obra≈ºenia
                 }
             }
         }

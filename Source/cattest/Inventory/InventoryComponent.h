@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
+#include "InputAction.h"
 #include "InventoryItemStructure.h"
 #include "InventoryPanel.h"
 class UInventorySlot;
@@ -27,9 +28,9 @@ class CATTEST_API UInventoryComponent : public UActorComponent
 
 	/** ACTIONS */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* InventoryAction;
+	UInputAction* InventoryAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* PickUpAction;
+	UInputAction* PickUpAction;
 
 public:
 	UInventoryComponent();
@@ -50,7 +51,6 @@ protected:
 	void RefreshInventory();
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void log(FString msg) const;
 
 private:
@@ -68,6 +68,7 @@ private:
 	UInventoryPanel* InventoryWidget;
 
 
+	bool isVisible = true;
 	bool mDebug = false;
 	void mDrawSphere(FVector MidPoint, float SphereRadius) const;
 };

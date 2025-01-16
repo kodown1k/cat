@@ -117,6 +117,7 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	UCameraComponent* GetThirdPersonCameraComponent() const { return ThirdPersonCameraComponent; }
+	UPROPERTY()
 	UUserWidget* MyWidget;
 
 	bool GetIsCrouching() const {

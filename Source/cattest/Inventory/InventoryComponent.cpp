@@ -4,7 +4,6 @@
 #include "PickUpItem.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
 
 
 UInventoryComponent::UInventoryComponent()
@@ -26,13 +25,8 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializeInventory();
-	SetupPlayerInputComponent();
-}
 
-void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	SetupPlayerInputComponent();
 }
 
 void UInventoryComponent::InitializeInventory()
@@ -45,9 +39,6 @@ void UInventoryComponent::InitializeInventory()
 		if (InventoryWidget)
 		{
 			RefreshInventory();
-
-			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-			InventoryWidget->AddToViewport();
 		}
 	}
 }
@@ -57,21 +48,23 @@ void UInventoryComponent::ToggleVisibilityInventory()
 {
 	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0))
 	{
-		if (!InventoryWidget)
+		isVisible = !isVisible;
+		if (isVisible)
 		{
-			return;
-		}
-
-		if (InventoryWidget->IsVisible())
-		{
-			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+			InventoryWidget->RemoveFromParent();
+			InventoryWidget = nullptr;
 			PlayerController->bShowMouseCursor = false;
 			FInputModeGameOnly InputMode;
 			PlayerController->SetInputMode(InputMode);
 		}
 		else
 		{
-			InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+			InitializeInventory();
+			if (!InventoryWidget)
+			{
+				return;
+			}
+			InventoryWidget->AddToViewport();
 			PlayerController->bShowMouseCursor = true;
 			FInputModeGameAndUI InputMode;
 			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
@@ -117,7 +110,7 @@ void UInventoryComponent::PickupItem()
 			}
 
 			AddItem(PickUpItem->ItemStructure);
-			RefreshInventory();
+			// RefreshInventory();
 			PickUpItem->Destroy();
 			if (PickUpItem->ItemStructure.SpawnSound)
 			{
@@ -213,6 +206,7 @@ void UInventoryComponent::RemoveItem(int index)
 		if (Item.Quantity == 0)
 		{
 			Items.RemoveAt(index);
+			Items.SetNum(6);
 		}
 		RefreshInventory();
 	}

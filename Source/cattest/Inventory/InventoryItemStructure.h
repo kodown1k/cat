@@ -29,12 +29,12 @@ struct FInventoryItem
 	USoundBase* SpawnSound;
 };
 
-/**
- * 
- */
-class CATTEST_API InventoryItemStructure
-{
-public:
-	InventoryItemStructure();
-	~InventoryItemStructure();
-};
+// /**
+//  * 
+//  */
+// class CATTEST_API InventoryItemStructure
+// {
+// public:
+// 	InventoryItemStructure();
+// 	~InventoryItemStructure();
+// };

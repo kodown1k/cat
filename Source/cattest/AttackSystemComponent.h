@@ -43,7 +43,7 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void SwordAttackCombo();
 
-	// Funkcja wywo≥ana przez EnhancedInput
+	// Funkcja wywo≈Çana przez EnhancedInput
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 	void SwordAttack();
 
@@ -96,7 +96,7 @@ protected:
 	TArray<bool> AnimationsLock;
 	
 
-	// Funkcja do wywo≥ania delegata
+	// Funkcja do wywo≈Çania delegata
 	void TriggerOnSwordAttack();
 
 	
@@ -109,7 +109,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// Funkcja do przypisywania akcji do komponentu wejúciowego
+	// Funkcja do przypisywania akcji do komponentu wej≈õciowego
 	void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 };
 
