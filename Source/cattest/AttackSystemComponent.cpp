@@ -3,6 +3,8 @@
 #include "GameFramework/Actor.h"
 #include "InputActionValue.h"
 #include "StatComponent.h"
+#include "Game/MyGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 UAttackSystemComponent::UAttackSystemComponent()
 {
@@ -186,8 +188,8 @@ void UAttackSystemComponent::SwordTraceLoop()
     FVector Location3 = ArrowSpherePoint->GetComponentLocation();
     if (!ArrowTopPoint || !ArrowBottomPoint) return;
     
-    PerformSphereTrace(GetWorld(), Location1, Location2, 12.0f, ECC_Pawn, true);
-    PerformSphereTrace(GetWorld(), Location3, Location3, 36.0f, ECC_Pawn, true);
+    PerformSphereTrace(GetWorld(), Location1, Location2, 12.0f, ECC_Pawn);
+    PerformSphereTrace(GetWorld(), Location3, Location3, 36.0f, ECC_Pawn);
 
 }
 
@@ -198,7 +200,7 @@ void UAttackSystemComponent::SwordTraceLoopKick()
     if (!ArrowTopPoint || !ArrowBottomPoint) return;
 
     
-    PerformSphereTrace(GetWorld(), Location3, Location3, 36.0f, ECC_Pawn, true);
+    PerformSphereTrace(GetWorld(), Location3, Location3, 36.0f, ECC_Pawn);
 
 }
 
@@ -245,7 +247,7 @@ void UAttackSystemComponent::OnAttackComboTimerEnd()
     UE_LOG(LogTemp, Warning, TEXT("Attack Combo Timer Ended!"));
 }
 
-void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel, bool bDrawDebug)
+void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel)
 {
     if (!World)
     {
@@ -279,7 +281,11 @@ void UAttackSystemComponent::PerformSphereTrace(UWorld* World, FVector Start, FV
         TraceParams
     );
 
-    if (bDrawDebug)
+    if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+    {
+        bDebugMode = MyGameInstance->bDebug;
+    }
+    if (bDebugMode)
     {
         FColor LineColor = bHit ? FColor::Red : FColor::Green;
         DrawDebugCapsule(

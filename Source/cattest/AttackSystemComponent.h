@@ -100,11 +100,11 @@ protected:
 	void TriggerOnSwordAttack();
 
 	
-	void PerformSphereTrace(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel, bool bDrawDebug);
-	void PerformSphereTrace2(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel, bool bDrawDebug);
+	void PerformSphereTrace(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel);
+	void PerformSphereTrace2(UWorld* World, FVector Start, FVector End, float Radius, ECollisionChannel TraceChannel);
 	void OnAttackComboTimerEnd();
 
-
+	bool bDebugMode = true;
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
