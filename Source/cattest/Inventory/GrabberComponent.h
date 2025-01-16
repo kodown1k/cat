@@ -30,7 +30,9 @@ public:
 	void Throw();
 
 private:
+	UPROPERTY()
 	UInputComponent* m_InputComponent = nullptr;
+	UPROPERTY()
 	UPhysicsHandleComponent* m_physicsHandleComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)

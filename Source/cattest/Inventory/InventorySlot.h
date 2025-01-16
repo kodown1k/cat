@@ -24,13 +24,13 @@ public:
 	FInventoryItem SItem;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UImage* itemimage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UTextBlock* itemquantity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UButton* itembuttom;
 
 	int index;

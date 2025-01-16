@@ -21,12 +21,12 @@ class CATTEST_API UInventoryPanel : public UUserWidget
 	virtual void NativeOnInitialized() override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UHorizontalBox* OnionsBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UTextBlock* HeaderText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UImage* BackgroundImage;
 };
