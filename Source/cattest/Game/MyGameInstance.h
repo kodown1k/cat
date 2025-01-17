@@ -19,9 +19,15 @@ public:
 
 	UFUNCTION(exec)
 	void SetDebug(bool Debug);
+
 	UFUNCTION(exec)
 	void GetDebug();
+
+	UFUNCTION(exec)
+	void SetDebugDrawLifeTime(float Time);
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Debug")
 	bool bDebug;
+	UPROPERTY(BlueprintReadWrite, Category = "Debug")
+	float fDebugDrawLifeTime = 5.0f;
 };

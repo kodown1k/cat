@@ -3,6 +3,7 @@
 #include "InventoryPanel.h"
 #include "PickUpItem.h"
 #include "Blueprint/UserWidget.h"
+#include "cattest/Game/MyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -103,14 +104,14 @@ void UInventoryComponent::PickupItem()
 	{
 		if (auto PickUpItem = Cast<APickUpItem>(Hit.GetActor()))
 		{
-			if (mDebug)
+			if (GetDebugMode())
 			{
 				FText name = PickUpItem->ItemStructure.Name;
 				log(name.ToString());
 			}
 
 			AddItem(PickUpItem->ItemStructure);
-			// RefreshInventory();
+
 			PickUpItem->Destroy();
 			if (PickUpItem->ItemStructure.SpawnSound)
 			{
@@ -217,11 +218,29 @@ void UInventoryComponent::RemoveItem(int index)
 }
 
 
+bool UInventoryComponent::GetDebugMode() const
+{
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		return MyGameInstance->bDebug;
+	}
+	return false;
+}
+
+float UInventoryComponent::GetDebugDrawLifeTime() const
+{
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		return MyGameInstance->fDebugDrawLifeTime;
+	}
+	return 2.0f;
+}
+
 void UInventoryComponent::mDrawSphere(FVector MidPoint, float SphereRadius) const
 {
-	if (mDebug)
+	if (GetDebugMode())
 	{
-		DrawDebugSphere(GetWorld(), MidPoint, SphereRadius, 12, FColor::MakeRandomColor(), false, 10.0f);
+		DrawDebugSphere(GetWorld(), MidPoint, SphereRadius, 12, FColor::MakeRandomColor(), false, GetDebugDrawLifeTime());
 	}
 }
 

@@ -66,9 +66,10 @@ private:
 
 	UPROPERTY()
 	UInventoryPanel* InventoryWidget;
-
-
+	// Flaga oznacza czy widget jest dodany do viewport
 	bool isVisible = true;
-	bool mDebug = false;
+	
+	bool GetDebugMode() const;
+	float GetDebugDrawLifeTime() const;
 	void mDrawSphere(FVector MidPoint, float SphereRadius) const;
 };
