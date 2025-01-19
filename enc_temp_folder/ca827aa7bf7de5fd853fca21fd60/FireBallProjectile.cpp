@@ -23,9 +23,8 @@ AFireBallProjectile::AFireBallProjectile()
     // Tworzymy komponent ruchu
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
     ProjectileMovement->UpdatedComponent = CollisionComponent;
-    ProjectileMovement->InitialSpeed = 1500.f;
-    ProjectileMovement->MaxSpeed = 1500.f;
-    ProjectileMovement->ProjectileGravityScale = 0.1f;
+    ProjectileMovement->InitialSpeed = 3000.f;
+    ProjectileMovement->MaxSpeed = 3000.f;
     ProjectileMovement->bRotationFollowsVelocity = false;
     ProjectileMovement->bShouldBounce = false;
 
