@@ -6,6 +6,8 @@ UAbilityCastComponent::UAbilityCastComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
     CurrentSpell = nullptr;
+    CooldownTime = 3.0f; // Domyœlny cooldown 3 sekundy
+    LastCastTime = -CooldownTime; // Pozwala rzuciæ czar od razu po starcie
 }
 
 void UAbilityCastComponent::BeginPlay()
@@ -35,6 +37,13 @@ void UAbilityCastComponent::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void UAbilityCastComponent::CastCurrentSpell()
 {
+    // SprawdŸ, czy mo¿emy rzuciæ czar (czy cooldown min¹³)
+    if (GetWorld()->GetTimeSeconds() - LastCastTime < CooldownTime)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Ability is on cooldown!"));
+        return;
+    }
+
     AcattestCharacter* CharacterOwner = Cast<AcattestCharacter>(GetOwner());
     if (CharacterOwner) {
         UE_LOG(LogTemp, Warning, TEXT("cast0"));
@@ -52,6 +61,9 @@ void UAbilityCastComponent::CastCurrentSpell()
             // Wywo³ujemy metodê CastSpell na nowej instancji czaru
             AActor* OwnerActor = GetOwner(); // Pobieramy w³aœciciela komponentu
             SpellInstance->CastSpell(OwnerActor);
+
+            // Ustawiamy czas ostatniego rzucenia
+            LastCastTime = GetWorld()->GetTimeSeconds();
         }
     }
 }

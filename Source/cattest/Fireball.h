@@ -27,6 +27,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Fireball")
     TSubclassOf<AFireBallProjectile> FireballProjectileClass;
 
+    bool bCanCast = true;
+
+    // Czas odnowienia czaru
+    float CooldownTime = 3.0f;
+
+    // Metoda resetuj¹ca cooldown
+    void ResetCooldown();
     
     
 	

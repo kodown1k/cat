@@ -24,7 +24,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
-	
+	float LastCastTime; // Czas ostatniego rzucenia czaru
 
 public:	
 	// Called every frame
@@ -33,6 +33,10 @@ public:
 	
 	void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
+	float CooldownTime; // Czas odnowienia w sekundach
+
+
 	
 
 
@@ -45,5 +49,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CastAbilityAction;
+
+	
+
+	
 
 };

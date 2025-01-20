@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "StatComponent.h"
+
+
 #include "DrawDebugHelpers.h" // Debugowanie, jeœli chcesz zobaczyæ, jak dzia³a kod
 
 // Sets default values
@@ -23,8 +25,9 @@ AFireBallProjectile::AFireBallProjectile()
     // Tworzymy komponent ruchu
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
     ProjectileMovement->UpdatedComponent = CollisionComponent;
-    ProjectileMovement->InitialSpeed = 3000.f;
-    ProjectileMovement->MaxSpeed = 3000.f;
+    ProjectileMovement->InitialSpeed = 1500.f;
+    ProjectileMovement->MaxSpeed = 1500.f;
+    ProjectileMovement->ProjectileGravityScale = 0.1f;
     ProjectileMovement->bRotationFollowsVelocity = false;
     ProjectileMovement->bShouldBounce = false;
 
@@ -36,7 +39,6 @@ void AFireBallProjectile::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Sprawdzamy, czy pocisk nie jest w kolizji zaraz po spawnieniu
     FVector SpawnLocation = GetActorLocation();
     FHitResult HitResult;
     FCollisionQueryParams CollisionParams;
@@ -53,6 +55,9 @@ void AFireBallProjectile::BeginPlay()
         // Jeœli pocisk uderza w coœ od razu, to przesuwamy go na trochê wy¿sze miejsce
         SetActorLocation(HitResult.ImpactPoint + FVector(0.f, 0.f, 20.f)); // Przesuniêcie w górê
     }
+
+    // Ignorowanie kolizji z casterem
+   
 }
 
 void AFireBallProjectile::Tick(float DeltaTime)
@@ -61,18 +66,42 @@ void AFireBallProjectile::Tick(float DeltaTime)
 }
 
 // Event wywo³any podczas kolizji
-void AFireBallProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AFireBallProjectile::OnHit(
+    UPrimitiveComponent* HitComponent,
+    AActor* OtherActor,
+    UPrimitiveComponent* OtherComp,
+    FVector NormalImpulse,
+    const FHitResult& Hit)
 {
+    // SprawdŸ czy system Niagara dla wybuchu jest przypisany
+    if (ExplosionEffect)
+    {
+        // Spawnuje system Niagara w miejscu kolizji
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            ExplosionEffect,
+            Hit.ImpactPoint,
+            FRotator::ZeroRotator
+        );
+    }
+    DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 100, 100, FColor::Red, false, 2.0f);
+
+    // Zadaj obra¿enia aktorowi, jeœli ma komponent obra¿eñ
     if (OtherActor && OtherActor != this)
     {
-        // Dodajemy logikê obra¿eñ
-        UStatComponent* Damagable = OtherActor->FindComponentByClass<UStatComponent>();
-        if (Damagable)
+        UStatComponent* StatComponent = OtherActor->FindComponentByClass<UStatComponent>();
+        if (StatComponent)
         {
-            Damagable->GetDamaged(Damage); // Zadaj obra¿enia
+            StatComponent->GetDamaged(Damage);
         }
-
-        // Zniszczenie pocisku po kolizji
-        Destroy();
     }
+
+    // Opcjonalnie: Dodaj dŸwiêk wybuchu
+    if (ExplosionSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, Hit.ImpactPoint);
+    }
+
+    // Zniszcz pocisk po uderzeniu
+    Destroy();
 }

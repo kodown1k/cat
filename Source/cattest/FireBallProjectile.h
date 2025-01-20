@@ -6,7 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+
+#include "NiagaraFunctionLibrary.h"
 #include "FireBallProjectile.generated.h"
+
 
 UCLASS()
 class CATTEST_API AFireBallProjectile : public AActor
@@ -16,6 +19,15 @@ class CATTEST_API AFireBallProjectile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AFireBallProjectile();
+
+    UPROPERTY(EditDefaultsOnly, Category = "Effects")
+    UNiagaraSystem* ExplosionEffect;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Sound")
+    USoundBase* ExplosionSound;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    float AreaDamageRadius;
 
 protected:
     // Komponent kolizji;

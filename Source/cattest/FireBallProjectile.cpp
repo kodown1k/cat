@@ -6,11 +6,14 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "StatComponent.h"
+
+
 #include "DrawDebugHelpers.h" // Debugowanie, jeœli chcesz zobaczyæ, jak dzia³a kod
 
 // Sets default values
 AFireBallProjectile::AFireBallProjectile()
 {
+    AreaDamageRadius = 100;
     PrimaryActorTick.bCanEverTick = true;
 
     // Tworzymy komponent kolizji
@@ -33,47 +36,75 @@ AFireBallProjectile::AFireBallProjectile()
     Damage = 50.f;
 }
 
-void AFireBallProjectile::BeginPlay()
+void AFireBallProjectile::OnHit(
+    UPrimitiveComponent* HitComponent,
+    AActor* OtherActor,
+    UPrimitiveComponent* OtherComp,
+    FVector NormalImpulse,
+    const FHitResult& Hit)
 {
-    Super::BeginPlay();
+    // SprawdŸ, czy system Niagara dla wybuchu jest przypisany
+    if (ExplosionEffect)
+    {
+        // Spawnuje system Niagara w miejscu kolizji
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            ExplosionEffect,
+            Hit.ImpactPoint,
+            FRotator::ZeroRotator
+        );
+    }
 
-    // Sprawdzamy, czy pocisk nie jest w kolizji zaraz po spawnieniu
-    FVector SpawnLocation = GetActorLocation();
-    FHitResult HitResult;
-    FCollisionQueryParams CollisionParams;
+    // Wyœwietlenie sfery obszaru eksplozji (debugowanie)
+    DrawDebugSphere(GetWorld(), Hit.ImpactPoint, AreaDamageRadius, 100, FColor::Red, false, 2.0f);
 
-    // Tworzymy kszta³t sweepa - w tym przypadku kula
+    // Zdefiniowanie kszta³tu eksplozji (sfera)
     FCollisionShape CollisionShape;
-    CollisionShape.SetSphere(15.0f); // Promieñ kuli w zale¿noœci od wielkoœci Twojego pocisku
+    CollisionShape.SetSphere(AreaDamageRadius);  // Promieñ eksplozji
 
-    // Sweep sprawdzaj¹cy kolizjê
-    bool bHit = GetWorld()->SweepSingleByChannel(HitResult, SpawnLocation, SpawnLocation, FQuat::Identity, ECC_Visibility, CollisionShape, CollisionParams);
+    // Parametry zapytania kolizji
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this); // Ignorowanie naszego pocisku
 
+    // Wyniki zapytania o kolizje
+    TArray<FHitResult> OverlapResults;
+
+    // Wykonanie zapytania o kolizjê w obszarze wybuchu
+    bool bHit = GetWorld()->SweepMultiByChannel(
+        OverlapResults,                         // Tablica wyników overlapu
+        Hit.ImpactPoint,                        // Punkt, w którym nastêpuje eksplozja
+        Hit.ImpactPoint,                        // Punkt pocz¹tkowy
+        FQuat::Identity,                        // Brak rotacji
+        ECC_GameTraceChannel1,                           // Kana³ kolizji (np. kana³ eksplozji)
+        CollisionShape,                         // Kszta³t eksplozji
+        QueryParams                             // Parametry zapytania
+    );
+
+    // Obs³uga wyników
     if (bHit)
     {
-        // Jeœli pocisk uderza w coœ od razu, to przesuwamy go na trochê wy¿sze miejsce
-        SetActorLocation(HitResult.ImpactPoint + FVector(0.f, 0.f, 20.f)); // Przesuniêcie w górê
-    }
-}
-
-void AFireBallProjectile::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-}
-
-// Event wywo³any podczas kolizji
-void AFireBallProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-    if (OtherActor && OtherActor != this)
-    {
-        // Dodajemy logikê obra¿eñ
-        UStatComponent* Damagable = OtherActor->FindComponentByClass<UStatComponent>();
-        if (Damagable)
+        // Iteracja po wynikach overlapu
+        for (const FHitResult& OverlapResult : OverlapResults)
         {
-            Damagable->GetDamaged(Damage); // Zadaj obra¿enia
+            AActor* OverlappedActor = OverlapResult.GetActor();
+            if (OverlappedActor && OverlappedActor != this)
+            {
+                // Sprawdzamy, czy aktor posiada komponent StatComponent
+                UStatComponent* StatComponent = OverlappedActor->FindComponentByClass<UStatComponent>();
+                if (StatComponent)
+                {
+                    StatComponent->GetDamaged(Damage);  // Zadaj obra¿enia
+                }
+            }
         }
-
-        // Zniszczenie pocisku po kolizji
-        Destroy();
     }
+
+    // Opcjonalnie: Dodaj dŸwiêk wybuchu
+    if (ExplosionSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, Hit.ImpactPoint);
+    }
+
+    // Zniszcz pocisk po uderzeniu
+    Destroy();
 }

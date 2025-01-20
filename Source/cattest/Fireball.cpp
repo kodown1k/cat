@@ -16,9 +16,14 @@ UFireball::UFireball()
 
 void UFireball::CastSpell_Implementation(AActor* Caster)
 {
-   
+    
 
-    // Pobieramy kontroler gracza
+    if (!FireballProjectileClass || !Caster)
+    {
+        return;
+    }
+
+    // Pobranie kontrolera gracza
     APlayerController* LocalPlayerController = UGameplayStatics::GetPlayerController(Caster, 0);
     if (!LocalPlayerController)
     {
@@ -37,9 +42,23 @@ void UFireball::CastSpell_Implementation(AActor* Caster)
     FRotator SpawnRotation = CameraRotation;
 
     // Tworzenie pocisku
-    AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(FireballProjectileClass, SpawnLocation, SpawnRotation);
+    AFireBallProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AFireBallProjectile>(
+        FireballProjectileClass,
+        SpawnLocation,
+        SpawnRotation
+    );
+
     if (SpawnedProjectile)
     {
-        UE_LOG(LogTemp, Warning, TEXT("stworzono pocisk"));
+        // Ustawienie w³aœciciela
+        SpawnedProjectile->SetOwner(Caster);
+
+        // Ignorowanie kolizji z w³aœcicielem
+        if (USphereComponent* CollisionComponent = SpawnedProjectile->FindComponentByClass<USphereComponent>())
+        {
+            CollisionComponent->IgnoreActorWhenMoving(Caster, true);
+        }
+
+        UE_LOG(LogTemp, Warning, TEXT("Pocisk stworzony i ustawiono ignorowanie castera."));
     }
 }
