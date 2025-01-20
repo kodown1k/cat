@@ -12,6 +12,7 @@
 
 #include "GameFramework/Character.h"
 #include "cattestCharacter.h"
+#include "AttackSystem/AttackMontagesStructure.h"
 
 #include "Components/ArrowComponent.h"
 #include "Kismet/KismetMathLibrary.h" 
@@ -77,7 +78,7 @@ public:
 	//ANIMACJE COMBO
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	TArray<UAnimMontage*> AttackMontages;
+	TArray<FAttackMontagesStructure> AttackMontagesStructure;
 
 	UArrowComponent* ArrowTopPoint;
 	UArrowComponent* ArrowBottomPoint;

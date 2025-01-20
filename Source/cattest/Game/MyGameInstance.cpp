@@ -5,11 +5,11 @@
 
 UMyGameInstance::UMyGameInstance()
 {
-	bDebug = false; // Ustaw wartość domyślną
+	bDebug = false;
 }
 
 /**
- * Czy debugopwac?
+ * Czy debugowac?
  */
 void UMyGameInstance::SetDebug(bool Debug)
 {
@@ -24,4 +24,9 @@ void UMyGameInstance::GetDebug()
 		const FString DebugMessage = FString::Printf(TEXT("Debug mode is: %s"), bDebug ? TEXT("true") : TEXT("false"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DebugMessage);
 	}
+}
+
+void UMyGameInstance::SetDebugDrawLifeTime(float Time)
+{
+	fDebugDrawLifeTime = Time;
 }
