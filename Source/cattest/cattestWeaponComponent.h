@@ -56,5 +56,5 @@ protected:
 
 private:
 	/** The Character holding this weapon*/
-	AcattestCharacter* Character;
+	TWeakObjectPtr<AcattestCharacter> Character;
 };
