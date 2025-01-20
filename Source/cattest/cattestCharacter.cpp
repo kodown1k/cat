@@ -11,6 +11,7 @@
 #include "InputActionValue.h"
 #include "ToolBuilderUtil.h"
 #include "Engine/LocalPlayer.h"
+#include "AbilityCastComponent.h"
 #include "StatComponent.h"
 
 
@@ -109,6 +110,8 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		auto StatComponent = FindComponentByClass<UStatComponent>();
 		StatComponent->SetupPlayerInputComponent(EnhancedInputComponent);
+		auto AbilityCastComponent = FindComponentByClass<UAbilityCastComponent>();
+		AbilityCastComponent->SetupPlayerInputComponent(EnhancedInputComponent);
 	}
 	else
 	{
