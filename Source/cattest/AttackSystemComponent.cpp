@@ -18,7 +18,7 @@ UAttackSystemComponent::UAttackSystemComponent()
 void UAttackSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
-    AnimationsLock.Init(false, AttackMontages.Num());
+    AnimationsLock.Init(false, AttackMontagesStructure.Num());
 
     GetOwner()->GetComponents<UArrowComponent>(ArrowComponents);
 
@@ -78,23 +78,23 @@ void UAttackSystemComponent::SwordAttackLogic()
     //    // Sprawdzanie, czy akcja ataku jest w toku
     //    isAttacking = true;
     //    UE_LOG(LogTemp, Warning, TEXT("Index %d"), AttackIndex);
-    //    UE_LOG(LogTemp, Warning, TEXT("Indexmon %d"), AttackMontages.Num());
+    //    UE_LOG(LogTemp, Warning, TEXT("Indexmon %d"), AttackMontagesStructure.Num());
 
     //    // Zainicjowanie combo (jeśli saveAttack = false, można przejść do kolejnego ataku)
     //    if (!saveAttack)
     //    {
     //        // Jeśli atak jest zapiszony, wykonaj logikę combo
-    //        if (AttackIndex < AttackMontages.Num())
+    //        if (AttackIndex < AttackMontagesStructure.Num())
     //        {
     //            if (UAnimInstance* AnimInstance = GetOwner()->FindComponentByClass<USkeletalMeshComponent>()->GetAnimInstance())
     //            {
-    //                AnimInstance->Montage_Play(AttackMontages[AttackIndex]);
+    //                AnimInstance->Montage_Play(AttackMontagesStructure[AttackIndex].AttackMontages);
     //            }
     //        }
     //        AttackIndex++;
     //        UE_LOG(LogTemp, Warning, TEXT("ATAK+"));
     //        saveAttack = true;
-    //        if (AttackIndex > AttackMontages.Num()) {
+    //        if (AttackIndex > AttackMontagesStructure.Num()) {
     //            AttackIndex = 0;
     //        }
     //    }
@@ -140,15 +140,18 @@ void UAttackSystemComponent::SwordAttackCombo()
 void UAttackSystemComponent::PlayMontage() {
     UE_LOG(LogTemp, Warning, TEXT("INDEX %d"), AttackIndex);
 
+    APawn* PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetPawn();
+    
     if (AttackIndex < AnimationsLock.Num()) {
         if (!AnimationsLock[AttackIndex]) {
             AnimationsLock[AttackIndex] = true;
-            if (AttackIndex < AttackMontages.Num())
+            if (AttackIndex < AttackMontagesStructure.Num())
             {
                 if (UAnimInstance* AnimInstance = GetOwner()->FindComponentByClass<USkeletalMeshComponent>()->GetAnimInstance())
                 {
                     
-                    AnimInstance->Montage_Play(AttackMontages[AttackIndex]);
+                    AnimInstance->Montage_Play(AttackMontagesStructure[AttackIndex].AttackMontages);
+                    UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackMontagesStructure[AttackIndex].AttackSound, PlayerCharacter->GetActorLocation() + PlayerCharacter->GetActorForwardVector());
                 }
                 AttackIndex++;
             }
