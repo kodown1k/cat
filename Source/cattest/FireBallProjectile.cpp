@@ -36,6 +36,21 @@ AFireBallProjectile::AFireBallProjectile()
     Damage = 50.f;
 }
 
+void AFireBallProjectile::BeginPlay()
+{
+    Super::BeginPlay();
+
+    // Inicjalizacja zdarzenia kolizji
+   
+}
+
+void AFireBallProjectile::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    // Mo¿esz dodaæ tutaj kod do wykonywania dzia³añ co klatkê (np. ruch, efekty, itp.)
+}
+
 void AFireBallProjectile::OnHit(
     UPrimitiveComponent* HitComponent,
     AActor* OtherActor,
