@@ -6,6 +6,7 @@
 // Sets default values for this component's properties
 UStatComponent::UStatComponent()
 {
+
     CattestCharacter = Cast<AcattestCharacter>(GetOwner());
     m_currentHealth = 50;
     m_maxHealth = 100;
@@ -41,9 +42,9 @@ void UStatComponent::BeginPlay()
 void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    
+    
     AcattestCharacter* CharacterOwner = Cast<AcattestCharacter>(GetOwner());
-    
-    
 
     if (CharacterOwner && CharacterOwner->MyWidget && (!HealthBar && !EnergyBar && !ExpBar))
     {

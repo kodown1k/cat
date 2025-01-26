@@ -12,6 +12,7 @@
 #include "ToolBuilderUtil.h"
 #include "Engine/LocalPlayer.h"
 #include "AbilityCastComponent.h"
+#include "StoryComponent.h"	
 #include "StatComponent.h"
 
 
@@ -112,6 +113,8 @@ void AcattestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		StatComponent->SetupPlayerInputComponent(EnhancedInputComponent);
 		auto AbilityCastComponent = FindComponentByClass<UAbilityCastComponent>();
 		AbilityCastComponent->SetupPlayerInputComponent(EnhancedInputComponent);
+		auto StoryCastComponent = FindComponentByClass<UStoryComponent>();
+		StoryCastComponent->SetupPlayerInputComponent(EnhancedInputComponent);
 	}
 	else
 	{
