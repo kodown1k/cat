@@ -11,21 +11,22 @@ APickUpItem::APickUpItem()
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SphereCollision->SetupAttachment(StaticMeshComponent);
 	SetupCollisions();
-	static ConstructorHelpers::FObjectFinder<UMaterial> MaterialFinder(TEXT("/Script/Engine.Material'/Game/Material/M_Outline.M_Outline'"));
-
-	if (MaterialFinder.Succeeded())
-	{
-		OverlayMaterial = MaterialFinder.Object;
-		DynamicMaterial = UMaterialInstanceDynamic::Create(OverlayMaterial, this);
-		DynamicMaterial->SetScalarParameterValue(TEXT("LineThickness"), 0.0f);
-		StaticMeshComponent->SetOverlayMaterial(DynamicMaterial);
-	}
 }
 
 
 void APickUpItem::BeginPlay()
 {
 	Super::BeginPlay();
+	if (OutlineMaterial)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(OutlineMaterial, this);
+		DynamicMaterial->SetScalarParameterValue(FName("LineThickness"), 0.0f);
+		StaticMeshComponent->SetOverlayMaterial(DynamicMaterial);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OutlineMaterial is not set!"));
+	}
 }
 
 void APickUpItem::OnConstruction(const FTransform& Transform)
