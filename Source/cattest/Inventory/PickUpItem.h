@@ -22,6 +22,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:
@@ -34,8 +35,8 @@ public:
 	UPROPERTY()
 	UStaticMeshComponent* StaticMeshComponent;
 
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
-	// UMaterialInterface* OverlayMaterial;
+	UPROPERTY(NotBlueprintable)
+	UMaterialInterface* DefaultOverlayMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
 	UMaterialInterface* OutlineMaterial;

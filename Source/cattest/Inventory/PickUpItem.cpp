@@ -17,6 +17,7 @@ APickUpItem::APickUpItem()
 void APickUpItem::BeginPlay()
 {
 	Super::BeginPlay();
+	DefaultOverlayMaterial = StaticMeshComponent->GetOverlayMaterial();
 	if (OutlineMaterial)
 	{
 		DynamicMaterial = UMaterialInstanceDynamic::Create(OutlineMaterial, this);
@@ -28,6 +29,14 @@ void APickUpItem::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("OutlineMaterial is not set!"));
 	}
 }
+
+void APickUpItem::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	StaticMeshComponent->SetOverlayMaterial(DefaultOverlayMaterial);
+}
+
 
 void APickUpItem::OnConstruction(const FTransform& Transform)
 {
