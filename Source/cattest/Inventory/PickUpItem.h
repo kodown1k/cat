@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FCollisionProfileName CollisionProfile;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	float SphereCollisionRadius = 50.0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
 	float CurrentLineThickness = 0.0f;
 

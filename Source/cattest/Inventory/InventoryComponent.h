@@ -36,8 +36,16 @@ public:
 	UInventoryComponent();
 
 	void SetupPlayerInputComponent();
+
+	UFUNCTION(BlueprintCallable)
 	void RemoveItem(int index);
 
+	UFUNCTION(BlueprintPure)
+	TArray<FInventoryItem>& GetItems();
+	FInventoryItem* GetItem(int index);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnItem(int index);
 protected:
 	virtual void BeginPlay() override;
 
@@ -56,15 +64,14 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	float GrabRange = 200.0f;
-
-	// Obiekty w inventory
+	
 	TArray<FInventoryItem> Items;
 
 	// wykrywania kolizje w formie sferycznego promienia
 	TArray<FHitResult> SphereTrace();
 	TArray<FHitResult> LineTrace();
 
-	UPROPERTY()
+	UPROPERTY(Blueprintable)
 	UInventoryPanel* InventoryWidget;
 	// Flaga oznacza czy widget jest dodany do viewport
 	bool isVisible = true;

@@ -32,7 +32,7 @@ void UInventoryComponent::BeginPlay()
 
 void UInventoryComponent::InitializeInventory()
 {
-	Items.SetNum(6);
+	GetItems().SetNum(9);
 
 	if (IsValid(InventoryWidgetClass))
 	{
@@ -84,7 +84,7 @@ void UInventoryComponent::RefreshInventory()
 
 	InventoryWidget->OnionsBox->ClearChildren();
 	int index = 0;
-	for (const FInventoryItem& item : Items)
+	for (const FInventoryItem& item : GetItems())
 	{
 		if (auto Slot = Cast<UInventorySlot>(CreateWidget(InventoryWidget, InventoryWidgetSlotClass)))
 		{
@@ -176,38 +176,39 @@ TArray<FHitResult> UInventoryComponent::LineTrace()
  */
 void UInventoryComponent::AddItem(FInventoryItem Item)
 {
-	for (int32 i = 0; i < Items.Num(); ++i)
+	for (int32 i = 0; i < GetItems().Num(); ++i)
 	{
-		if (Items[i].Name.EqualTo(Item.Name) && Item.Stackable) // Czy mamy w inventory item z taka nazwa i jest stackable, wowczas zwiekszamy ilosc.
+		FInventoryItem* _Item = GetItem(i);
+		if (_Item->Name.EqualTo(Item.Name) && _Item->Stackable) // Czy mamy w inventory item z taka nazwa i jest stackable, wowczas zwiekszamy ilosc.
 		{
-			Items[i].Quantity += Item.Quantity;
+			_Item->Quantity += Item.Quantity;
 			return;
 		}
 	}
-	for (int32 i = 0; i < Items.Num(); ++i)
+	for (int32 i = 0; i < GetItems().Num(); ++i)
 	{
-		if (Items[i].Quantity == 0) // Dodajemy do pierwszego pustego miejsca
+		FInventoryItem* _Item = GetItem(i);
+		if (_Item->Quantity == 0) // Dodajemy do pierwszego pustego miejsca
 		{
-			Items[i] = Item;
+			*_Item = Item;
 			return;
 		}
 	}
 
 	// Jesli nie ma stworzonych nawet pustych slotow dodajemy w pierwsze miejsce.
-	Items.Insert(Item, 0);
+	GetItems().Insert(Item, 0);
 }
 
 void UInventoryComponent::RemoveItem(int index)
 {
-	if (Items.IsValidIndex(index))
+	if (GetItems().IsValidIndex(index))
 	{
-		FInventoryItem Item = Items[index];
-		UE_LOG(LogTemp, Display, TEXT("Removing Item: %s"), *Item.Name.ToString());
-		--Item.Quantity;
-		if (Item.Quantity == 0)
+		FInventoryItem* Item = GetItem(index);
+		--Item->Quantity;
+		if (Item->Quantity == 0)
 		{
-			Items.RemoveAt(index);
-			Items.SetNum(6);
+			GetItems().RemoveAt(index);
+			GetItems().SetNum(9);
 		}
 		RefreshInventory();
 	}
@@ -215,6 +216,56 @@ void UInventoryComponent::RemoveItem(int index)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Mamy problem"));
 	}
+}
+
+TArray<FInventoryItem>& UInventoryComponent::GetItems()
+{
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		return MyGameInstance->Items;
+	}
+	return Items;
+}
+
+FInventoryItem* UInventoryComponent::GetItem(int index)
+{
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		return &MyGameInstance->Items[index];
+	}
+	return nullptr;
+}
+
+void UInventoryComponent::SpawnItem(int index)
+{
+	APawn* PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetPawn();
+	if (!PlayerCharacter) return;
+	
+	FVector ForwardVector = PlayerCharacter->GetActorForwardVector();
+	FVector SpawnLocation = PlayerCharacter->GetActorLocation() + ForwardVector * 100.0f; // 100 cm to 1 metr
+	FRotator ActorRotation = PlayerCharacter->GetActorRotation();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), SpawnLocation, ActorRotation, SpawnParams);
+
+	FInventoryItem Item =* GetItem(index);
+	Item.Quantity = 1;
+	PickUpItem->StaticMeshComponent->SetStaticMesh(Item.Mesh);
+	PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);
+	if (PickUpItem)
+	{
+		UE_LOG(LogTemp, Display, TEXT("spawned"));
+		PickUpItem->ItemStructure = Item;
+	}
+
+	if (Item.SpawnSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Item.SpawnSound, SpawnLocation);
+	}
+
+	RemoveItem(index);
 }
 
 

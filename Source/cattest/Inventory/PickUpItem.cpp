@@ -46,13 +46,15 @@ void APickUpItem::OnConstruction(const FTransform& Transform)
 	{
 		StaticMeshComponent->SetStaticMesh(ItemStructure.Mesh);
 		StaticMeshComponent->SetSimulatePhysics(true);
+		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
 	}
 }
 
 
 void APickUpItem::SetupCollisions()
 {
-	SphereCollision->InitSphereRadius(100.0f);
+	SphereCollision->InitSphereRadius(SphereCollisionRadius);
 	SphereCollision->BodyInstance.SetCollisionProfileName("Item");
 	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &APickUpItem::OnOverlapBegin);
 	SphereCollision->OnComponentEndOverlap.AddDynamic(this, &APickUpItem::OnOverlapEnd);

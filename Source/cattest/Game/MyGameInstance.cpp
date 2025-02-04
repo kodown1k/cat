@@ -29,3 +29,8 @@ void UMyGameInstance::SetDebugDrawLifeTime(float Time)
 {
 	fDebugDrawLifeTime = Time;
 }
+
+TArray<FInventoryItem>& UMyGameInstance::GetItems()
+{
+	return Items;
+}
