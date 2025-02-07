@@ -41,31 +41,6 @@ void UInventorySlot::OnItemButtonClicked()
 	{
 		return;
 	}
-
-	APawn* PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetPawn();
-	if (!PlayerCharacter) return;
 	
-	FVector ForwardVector = PlayerCharacter->GetActorForwardVector();
-	FVector SpawnLocation = PlayerCharacter->GetActorLocation() + ForwardVector * 100.0f; // 100 cm to 1 metr
-	FRotator ActorRotation = PlayerCharacter->GetActorRotation();
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), SpawnLocation, ActorRotation, SpawnParams);
-	
-	PickUpItem->StaticMeshComponent->SetStaticMesh(SItem.Mesh);
-	PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);
-	if (PickUpItem)
-	{
-		UE_LOG(LogTemp, Display, TEXT("spawned"));
-		PickUpItem->ItemStructure = SItem;
-	}
-
-	if (SItem.SpawnSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SItem.SpawnSound, SpawnLocation);
-	}
-
-	m_inventoryComponent->RemoveItem(index);
+	m_inventoryComponent->SpawnItem(index);
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "../Inventory/InventoryItemStructure.h"
 #include "MyGameInstance.generated.h"
 
 /**
@@ -30,4 +31,11 @@ public:
 	bool bDebug;
 	UPROPERTY(BlueprintReadWrite, Category = "Debug")
 	float fDebugDrawLifeTime = 5.0f;
+
+	// Obiekty w inventory
+	UPROPERTY(Blueprintable)
+	TArray<FInventoryItem> Items;
+
+	UFUNCTION(BlueprintPure)
+	TArray<FInventoryItem>& GetItems();
 };

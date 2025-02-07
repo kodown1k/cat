@@ -12,7 +12,8 @@
 				"Engine",
 				"CommonUI",
 				"UMG",
-				"CoreUObject"
+				"CoreUObject",
+				"AIModule"
 			]
 		}
 	],
@@ -53,7 +54,12 @@
 			"Enabled": true
 		},
 		{
+
 			"Name": "Water",
+			"Enabled": true
+		},
+    {
+			"Name": "HDRIBackdrop",
 			"Enabled": true
 		}
 	]

@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MyGameInstance.h"
 
 UMyGameInstance::UMyGameInstance()
@@ -29,4 +28,9 @@ void UMyGameInstance::GetDebug()
 void UMyGameInstance::SetDebugDrawLifeTime(float Time)
 {
 	fDebugDrawLifeTime = Time;
+}
+
+TArray<FInventoryItem>& UMyGameInstance::GetItems()
+{
+	return Items;
 }

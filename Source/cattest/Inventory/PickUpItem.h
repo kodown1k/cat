@@ -22,6 +22,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:
@@ -34,10 +35,13 @@ public:
 	UPROPERTY()
 	UStaticMeshComponent* StaticMeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
-	UMaterialInterface* OverlayMaterial;
+	UPROPERTY(NotBlueprintable)
+	UMaterialInterface* DefaultOverlayMaterial;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* OutlineMaterial;
+	
+	UPROPERTY(NotBlueprintable)
 	UMaterialInstanceDynamic* DynamicMaterial;
 
 	UPROPERTY(VisibleDefaultsOnly, Category=Item)
@@ -46,6 +50,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FCollisionProfileName CollisionProfile;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	float SphereCollisionRadius = 50.0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
+	float CurrentLineThickness = 0.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "ShowTrace")
+	float TargetLineThickness = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
+	float MaxTargetThickness = 0.5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
+	float LerpSpeed = 0.0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
+	bool bIsOverlapping = false;
+	
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 	                    AActor* OtherActor,
@@ -61,10 +83,7 @@ public:
 
 	void log(FString msg) const;
 
+	void SetupMaterials();
 private:
-	float CurrentLineThickness = 0.0f;
-	float TargetLineThickness = 0.0f;
-	float MaxTargetThickness = 0.5;
-	float LerpSpeed = 0.0;
-	bool bIsOverlapping = false;
+	
 };

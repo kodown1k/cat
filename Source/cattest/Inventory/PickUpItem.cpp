@@ -11,22 +11,22 @@ APickUpItem::APickUpItem()
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SphereCollision->SetupAttachment(StaticMeshComponent);
 	SetupCollisions();
-	static ConstructorHelpers::FObjectFinder<UMaterial> MaterialFinder(TEXT("/Script/Engine.Material'/Game/Material/M_Outline.M_Outline'"));
-
-	if (MaterialFinder.Succeeded())
-	{
-		OverlayMaterial = MaterialFinder.Object;
-		DynamicMaterial = UMaterialInstanceDynamic::Create(OverlayMaterial, this);
-		DynamicMaterial->SetScalarParameterValue(TEXT("LineThickness"), 0.0f);
-		StaticMeshComponent->SetOverlayMaterial(DynamicMaterial);
-	}
 }
 
 
 void APickUpItem::BeginPlay()
 {
 	Super::BeginPlay();
+	SetupMaterials();
 }
+
+void APickUpItem::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	StaticMeshComponent->SetOverlayMaterial(DefaultOverlayMaterial);
+}
+
 
 void APickUpItem::OnConstruction(const FTransform& Transform)
 {
@@ -36,13 +36,15 @@ void APickUpItem::OnConstruction(const FTransform& Transform)
 	{
 		StaticMeshComponent->SetStaticMesh(ItemStructure.Mesh);
 		StaticMeshComponent->SetSimulatePhysics(true);
+		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
 	}
 }
 
 
 void APickUpItem::SetupCollisions()
 {
-	SphereCollision->InitSphereRadius(100.0f);
+	SphereCollision->InitSphereRadius(SphereCollisionRadius);
 	SphereCollision->BodyInstance.SetCollisionProfileName("Item");
 	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &APickUpItem::OnOverlapBegin);
 	SphereCollision->OnComponentEndOverlap.AddDynamic(this, &APickUpItem::OnOverlapEnd);
@@ -85,4 +87,19 @@ void APickUpItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 void APickUpItem::log(FString msg) const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::MakeRandomColor(), msg);
+}
+
+void APickUpItem::SetupMaterials()
+{
+	DefaultOverlayMaterial = StaticMeshComponent->GetOverlayMaterial();
+	if (ItemStructure.OutlineMaterial)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(ItemStructure.OutlineMaterial, this);
+		DynamicMaterial->SetScalarParameterValue(FName("LineThickness"), 0.0f);
+		StaticMeshComponent->SetOverlayMaterial(DynamicMaterial);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OutlineMaterial is not set!"));
+	}
 }
