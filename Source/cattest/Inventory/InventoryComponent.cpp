@@ -201,21 +201,20 @@ void UInventoryComponent::AddItem(FInventoryItem Item)
 
 void UInventoryComponent::RemoveItem(int index)
 {
-	if (GetItems().IsValidIndex(index))
-	{
-		FInventoryItem* Item = GetItem(index);
-		--Item->Quantity;
-		if (Item->Quantity == 0)
-		{
-			GetItems().RemoveAt(index);
-			GetItems().SetNum(9);
-		}
-		RefreshInventory();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Display, TEXT("Mamy problem"));
-	}
+ if (GetItems().IsValidIndex(index))
+ {
+  FInventoryItem* Item = GetItem(index);
+  --Item->Quantity;
+  if (Item->Quantity == 0)
+  {
+   GetItems().RemoveAt(index);
+  }
+  RefreshInventory();
+ }
+ else
+ {
+  UE_LOG(LogTemp, Display, TEXT("Mamy problem"));
+ }
 }
 
 TArray<FInventoryItem>& UInventoryComponent::GetItems()
@@ -238,34 +237,36 @@ FInventoryItem* UInventoryComponent::GetItem(int index)
 
 void UInventoryComponent::SpawnItem(int index)
 {
-	APawn* PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetPawn();
-	if (!PlayerCharacter) return;
-	
-	FVector ForwardVector = PlayerCharacter->GetActorForwardVector();
-	FVector SpawnLocation = PlayerCharacter->GetActorLocation() + ForwardVector * 100.0f; // 100 cm to 1 metr
-	FRotator ActorRotation = PlayerCharacter->GetActorRotation();
+ APawn* PlayerCharacter = GetWorld()->GetFirstPlayerController()->GetPawn();
+ if (!PlayerCharacter) return;
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+ FVector ForwardVector = PlayerCharacter->GetActorForwardVector();
+ FVector SpawnLocation = PlayerCharacter->GetActorLocation() + ForwardVector * 100.0f;
+ FRotator ActorRotation = PlayerCharacter->GetActorRotation();
 
-	APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), SpawnLocation, ActorRotation, SpawnParams);
+ FActorSpawnParameters SpawnParams;
+ SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	FInventoryItem Item =* GetItem(index);
-	Item.Quantity = 1;
-	PickUpItem->StaticMeshComponent->SetStaticMesh(Item.Mesh);
-	PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);
-	if (PickUpItem)
-	{
-		UE_LOG(LogTemp, Display, TEXT("spawned"));
-		PickUpItem->ItemStructure = Item;
-	}
+ APickUpItem* PickUpItem = GetWorld()->SpawnActor<APickUpItem>(APickUpItem::StaticClass(), SpawnLocation, ActorRotation, SpawnParams);
 
-	if (Item.SpawnSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Item.SpawnSound, SpawnLocation);
-	}
+ if (PickUpItem)
+ {
+  FInventoryItem Item = *GetItem(index);
+  Item.Quantity = 1;
+  PickUpItem->StaticMeshComponent->SetStaticMesh(Item.Mesh);
+  PickUpItem->StaticMeshComponent->SetSimulatePhysics(true);
+  PickUpItem->StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+  PickUpItem->StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+  PickUpItem->ItemStructure = Item;
+  PickUpItem->SetupMaterials();
 
-	RemoveItem(index);
+  if (Item.SpawnSound)
+  {
+   UGameplayStatics::PlaySoundAtLocation(GetWorld(), Item.SpawnSound, SpawnLocation);
+  }
+
+  RemoveItem(index);
+ }
 }
 
 

@@ -56,7 +56,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
 	float CurrentLineThickness = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
+	UPROPERTY(BlueprintReadWrite, Category = "ShowTrace")
 	float TargetLineThickness = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShowTrace")
@@ -83,6 +83,7 @@ public:
 
 	void log(FString msg) const;
 
+	void SetupMaterials();
 private:
 	
 };

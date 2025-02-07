@@ -17,17 +17,7 @@ APickUpItem::APickUpItem()
 void APickUpItem::BeginPlay()
 {
 	Super::BeginPlay();
-	DefaultOverlayMaterial = StaticMeshComponent->GetOverlayMaterial();
-	if (OutlineMaterial)
-	{
-		DynamicMaterial = UMaterialInstanceDynamic::Create(OutlineMaterial, this);
-		DynamicMaterial->SetScalarParameterValue(FName("LineThickness"), 0.0f);
-		StaticMeshComponent->SetOverlayMaterial(DynamicMaterial);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OutlineMaterial is not set!"));
-	}
+	SetupMaterials();
 }
 
 void APickUpItem::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -97,4 +87,19 @@ void APickUpItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 void APickUpItem::log(FString msg) const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::MakeRandomColor(), msg);
+}
+
+void APickUpItem::SetupMaterials()
+{
+	DefaultOverlayMaterial = StaticMeshComponent->GetOverlayMaterial();
+	if (ItemStructure.OutlineMaterial)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(ItemStructure.OutlineMaterial, this);
+		DynamicMaterial->SetScalarParameterValue(FName("LineThickness"), 0.0f);
+		StaticMeshComponent->SetOverlayMaterial(DynamicMaterial);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OutlineMaterial is not set!"));
+	}
 }

@@ -27,6 +27,9 @@ struct FInventoryItem
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="SpawnSound", MakeStructureDefaultValue="None"))
 	USoundBase* SpawnSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInterface* OutlineMaterial;
 };
 
 // /**
