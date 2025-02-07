@@ -11,8 +11,8 @@
 #include "InputActionValue.h"
 #include "ToolBuilderUtil.h"
 #include "Engine/LocalPlayer.h"
-#include "AbilityCastComponent.h"
-#include "StoryComponent.h"	
+#include "Abilities/AbilityCastComponent.h"
+#include "InteractionSystem/StoryComponent.h"	
 #include "StatComponent.h"
 
 

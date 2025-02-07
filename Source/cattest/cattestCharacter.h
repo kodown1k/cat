@@ -3,7 +3,7 @@
 #pragma once
 
 //Dodane Biblioteki
-#include "DamageInterface.h"
+#include "AttackSystem/DamageInterface.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
