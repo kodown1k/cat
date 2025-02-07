@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "DamageInterface.h"
+#include "AttackSystem/DamageInterface.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -133,7 +133,7 @@ protected:
     bool bIsSprinting;
     bool bIsDead;
     
-
+    
     
 
 public:	

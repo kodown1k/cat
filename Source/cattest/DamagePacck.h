@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "DamageInterface.h" // Import interfejsu
+#include "AttackSystem/DamageInterface.h" // Import interfejsu
 #include "DamagePacck.generated.h"
 
 UCLASS()
