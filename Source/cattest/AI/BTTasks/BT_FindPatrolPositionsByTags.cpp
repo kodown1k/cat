@@ -3,6 +3,7 @@
 
 #include "BT_FindPatrolPositionsByTags.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "cattest/Game/MyGameInstance.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -104,6 +105,8 @@ EBTNodeResult::Type UBT_FindPatrolPositionsByTags::ExecuteTask(UBehaviorTreeComp
 		default:
 			break;
 		}
+
+		log(PatrolActor->GetName());
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject( PatrolLocationBlackboardKey.SelectedKeyName, PatrolActor);
 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
@@ -112,4 +115,12 @@ EBTNodeResult::Type UBT_FindPatrolPositionsByTags::ExecuteTask(UBehaviorTreeComp
 	}
 
 	return EBTNodeResult::Failed;
+}
+
+void UBT_FindPatrolPositionsByTags::log(FString msg) const
+{
+	if (UMyGameInstance* MyGameInstance = Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::MakeRandomColor(), msg);
+	}
 }

@@ -38,8 +38,11 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Patrol", meta=(AllowPrivateAccess="true"))
 	FBlackboardKeySelector PatrolLocationBlackboardKey;
-
+	
 	TArray<AActor*> SortTaggedActorsByDistance(AActor* Owner) const;
 	
 	int32 CurrentActorIndex = 0;
+
+	void log(FString msg) const;
+
 };
