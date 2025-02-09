@@ -27,6 +27,10 @@ public:
 	// Sets default values for this component's properties
 	UStatComponent();
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+    TSubclassOf<UUserWidget> WidgetBlueprintClass;
+    UPROPERTY()
+    UUserWidget* MyWidget;
     
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
@@ -121,7 +125,7 @@ protected:
 
     void PlayMontage();
     TArray<bool> AnimationsLock;
-    
+    void ShowWidget();
 
     FTimerHandle OneSecTimer;
 

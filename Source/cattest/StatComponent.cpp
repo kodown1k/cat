@@ -32,6 +32,7 @@ UStatComponent::UStatComponent()
 // Called when the game starts
 void UStatComponent::BeginPlay()
 {
+    ShowWidget();
     RefreshHealthBar();
     Super::BeginPlay();
     GetWorld()->GetTimerManager().SetTimer(OneSecTimer, this, &UStatComponent::GetRegen, 1.0f, true);
@@ -88,6 +89,26 @@ void UStatComponent::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
         
     }
 
+}
+
+void UStatComponent::ShowWidget()
+{
+    if (GEngine)
+
+        if (WidgetBlueprintClass) // Sprawdzenie, czy klasa widgetu zosta�a przypisana
+        {
+
+            // Stw�rz instancj� widgetu
+            MyWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetBlueprintClass);
+
+
+            if (MyWidget)
+            {
+                MyWidget->AddToViewport(); // Dodaj widget do ekranu
+                if (GEngine)
+                    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "widget dodany");
+            }
+        }
 }
 
 void UStatComponent::Sprint(const FInputActionValue& Value)

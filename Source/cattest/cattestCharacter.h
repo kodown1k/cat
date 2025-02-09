@@ -104,7 +104,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> WidgetBlueprintClass;
-
+	UPROPERTY()
+	UUserWidget* MyWidget;
 	// APawn interface
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -117,8 +118,7 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	UCameraComponent* GetThirdPersonCameraComponent() const { return ThirdPersonCameraComponent; }
-	UPROPERTY()
-	UUserWidget* MyWidget;
+	
 
 	bool GetIsCrouching() const {
 		return bIsCrouching3;
