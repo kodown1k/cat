@@ -55,12 +55,12 @@ void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     
     
-    AcattestCharacter* CharacterOwner = Cast<AcattestCharacter>(GetOwner());
+    
 
-    if (CharacterOwner && CharacterOwner->MyWidget && (!HealthBar && !EnergyBar && !ExpBar))
+    if (MyWidget && (!HealthBar && !EnergyBar && !ExpBar))
     {
         // Rzutuj MyWidget na klas� BP_HUD
-        UUserWidget* MyHUD = CharacterOwner->MyWidget;
+        UUserWidget* MyHUD = MyWidget;
 
         // Znajd� HealthBar i StaminaBar w BP_HUD
         HealthBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("HealthBar")));
