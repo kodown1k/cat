@@ -12,6 +12,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/ProgressBar.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "StatComponent.generated.h"
 
@@ -123,7 +124,8 @@ protected:
     
 
     FTimerHandle OneSecTimer;
-	UPROPERTY()
+
+	UPROPERTY(BlueprintReadWrite)
     UProgressBar* HealthBar;
 	UPROPERTY()
     UProgressBar* EnergyBar;
@@ -132,7 +134,8 @@ protected:
 
     bool bIsSprinting;
     bool bIsDead;
-    
+
+	void RefreshHealthBar() const;
     
     
 
@@ -142,7 +145,8 @@ public:
     void GetHealed2(int val);
     void GetRegen();
     virtual void GetDamaged(int DamageAmount) override;
-    void GetDamaged2(int val);
+	UFUNCTION(BlueprintCallable)
+    void AddDamaged(int val);
     void AffectRegeneration(int val);
     void AffectSpeed(int val);
     void GetExp(int val);
@@ -154,8 +158,10 @@ public:
      
 
 
-     //gettery i settery 
+     //gettery i settery
+	UFUNCTION(BlueprintGetter)
      int GetCurrentHealth() const;
+	UFUNCTION(BlueprintSetter)
      void SetCurrentHealth(int NewHealth);
 
      int GetMaxHealth() const;

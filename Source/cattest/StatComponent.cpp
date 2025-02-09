@@ -26,16 +26,26 @@ UStatComponent::UStatComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+    
 }
 
 // Called when the game starts
 void UStatComponent::BeginPlay()
 {
+    RefreshHealthBar();
     Super::BeginPlay();
     GetWorld()->GetTimerManager().SetTimer(OneSecTimer, this, &UStatComponent::GetRegen, 1.0f, true);
-    // Uzyskaj referencjê do postaci (actor) - zak³adaj¹c, ¿e komponent jest do³¹czony do postaci
+    // Uzyskaj referencjï¿½ do postaci (actor) - zakï¿½adajï¿½c, ï¿½e komponent jest doï¿½ï¿½czony do postaci
    
+}
+
+void  UStatComponent::RefreshHealthBar() const
+{
+    if (HealthBar)
+    {
+        float HealthPercentage = m_currentHealth / m_maxHealth;
+        HealthBar->SetPercent(HealthPercentage);
+    }
 }
 
 // Called every frame
@@ -48,20 +58,20 @@ void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
     if (CharacterOwner && CharacterOwner->MyWidget && (!HealthBar && !EnergyBar && !ExpBar))
     {
-        // Rzutuj MyWidget na klasê BP_HUD
+        // Rzutuj MyWidget na klasï¿½ BP_HUD
         UUserWidget* MyHUD = CharacterOwner->MyWidget;
 
-        // ZnajdŸ HealthBar i StaminaBar w BP_HUD
+        // Znajdï¿½ HealthBar i StaminaBar w BP_HUD
         HealthBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("HealthBar")));
         EnergyBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("EnergyBar")));
         ExpBar = Cast<UProgressBar>(MyHUD->GetWidgetFromName(TEXT("ExpBar")));
         if (HealthBar)
         {
-            UE_LOG(LogTemp, Warning, TEXT("HealthBar zosta³ przypisany!"));
+            UE_LOG(LogTemp, Warning, TEXT("HealthBar zostaï¿½ przypisany!"));
         }
         else
         {
-            UE_LOG(LogTemp, Error, TEXT("Nie uda³o siê znaleŸæ HealthBar!"));
+            UE_LOG(LogTemp, Error, TEXT("Nie udaï¿½o siï¿½ znaleï¿½ï¿½ HealthBar!"));
         }
        
     }
@@ -82,36 +92,36 @@ void UStatComponent::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void UStatComponent::Sprint(const FInputActionValue& Value)
 {
-    AcattestCharacter* CharacterOwner = Cast<AcattestCharacter>(GetOwner()); // Pobieramy w³aœciciela komponentu (Actor)
+    AcattestCharacter* CharacterOwner = Cast<AcattestCharacter>(GetOwner()); // Pobieramy wï¿½aï¿½ciciela komponentu (Actor)
     if (CharacterOwner->GetIsCrouching()) {
         return;
     }
-    // Sprawdzenie, czy w³aœciciel komponentu jest prawid³owy
+    // Sprawdzenie, czy wï¿½aï¿½ciciel komponentu jest prawidï¿½owy
     if (!CharacterOwner)
     {
         UE_LOG(LogTemp, Error, TEXT("Owner is not a valid ACharacter!"));
-        return; // Zatrzymanie funkcji, jeœli w³aœciciel nie jest poprawny
+        return; // Zatrzymanie funkcji, jeï¿½li wï¿½aï¿½ciciel nie jest poprawny
     }
 
-    if (!bIsSprinting) // Sprawdzenie, czy postaæ nie jest ju¿ w trybie sprintu
+    if (!bIsSprinting) // Sprawdzenie, czy postaï¿½ nie jest juï¿½ w trybie sprintu
     {
         bIsSprinting = true;
 
-        // Zmieñ prêdkoœæ ruchu
+        // Zmieï¿½ prï¿½dkoï¿½ï¿½ ruchu
         CharacterOwner->GetCharacterMovement()->MaxWalkSpeed = m_sprintSpeed;
 
-        // Zmieñ skalê postaci (jeœli chcesz, np. zmniejszaj¹c j¹ podczas sprintu)
+        // Zmieï¿½ skalï¿½ postaci (jeï¿½li chcesz, np. zmniejszajï¿½c jï¿½ podczas sprintu)
 
         UE_LOG(LogTemp, Log, TEXT("%s is now sprinting"), *GetName());
     }
-    else if (bIsSprinting) // Sprawdzenie, czy postaæ jest w trybie sprintu
+    else if (bIsSprinting) // Sprawdzenie, czy postaï¿½ jest w trybie sprintu
     {
         bIsSprinting = false;
 
-        // Przywróæ normaln¹ prêdkoœæ ruchu
+        // Przywrï¿½ï¿½ normalnï¿½ prï¿½dkoï¿½ï¿½ ruchu
         CharacterOwner->GetCharacterMovement()->MaxWalkSpeed = m_baseSpeed;
 
-        // Przywróæ normaln¹ skalê postaci (jeœli zmienia³a siê wczeœniej)
+        // Przywrï¿½ï¿½ normalnï¿½ skalï¿½ postaci (jeï¿½li zmieniaï¿½a siï¿½ wczeï¿½niej)
 
         UE_LOG(LogTemp, Log, TEXT("%s has stopped sprinting"), *GetName());
     }
@@ -137,11 +147,11 @@ void UStatComponent::GetHealed2(int val)
         HealthBar->SetPercent(HealthPercentage);
     }
 
-    // Uzyskaj dostêp do postaci
+    // Uzyskaj dostï¿½p do postaci
 
 };
 
-void UStatComponent::GetDamaged2(int val)
+void UStatComponent::AddDamaged(int val)
 {
     if (bIsDead) {
         return;
@@ -152,38 +162,33 @@ void UStatComponent::GetDamaged2(int val)
     {
         m_currentHealth = 0;
         bIsDead = true;
-        if (APlayerController* PlayerController = Cast<APlayerController>(CattestCharacter->GetController()))
-        {
-            if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-            {
-                Subsystem->ClearAllMappings();
-                UE_LOG(LogTemp, Log, TEXT("Player input disabled using Enhanced Input."));
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("Failed to access Enhanced Input Subsystem."));
-            }
-            if (USkeletalMeshComponent* Mesh = CattestCharacter->GetMesh())
-            {
-                Mesh->SetSimulatePhysics(true); // W³¹cz symulacjê fizyki
-                Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
-                UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the player mesh."));
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("Failed to access player mesh."));
-            }
-        }
+        // if (APlayerController* PlayerController = Cast<APlayerController>(CattestCharacter->GetController()))
+        // {
+        //     if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+        //     {
+        //         Subsystem->ClearAllMappings();
+        //         UE_LOG(LogTemp, Log, TEXT("Player input disabled using Enhanced Input."));
+        //     }
+        //     else
+        //     {
+        //         UE_LOG(LogTemp, Error, TEXT("Failed to access Enhanced Input Subsystem."));
+        //     }
+        //     if (USkeletalMeshComponent* Mesh = CattestCharacter->GetMesh())
+        //     {
+        //         Mesh->SetSimulatePhysics(true); // Wï¿½ï¿½cz symulacjï¿½ fizyki
+        //         Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
+        //         UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the player mesh."));
+        //     }
+        //     else
+        //     {
+        //         UE_LOG(LogTemp, Error, TEXT("Failed to access player mesh."));
+        //     }
+        // }
     }
 
-    float HealthPercentage = (float)m_currentHealth / m_maxHealth;
+    RefreshHealthBar();
 
-    if (HealthBar)
-    {
-        HealthBar->SetPercent(HealthPercentage);
-    }
-
-    // Uzyskaj dostêp do postaci
+    // Uzyskaj dostï¿½p do postaci
 
 };
 // pod otrzymywanie obrazen
@@ -228,7 +233,7 @@ void UStatComponent::GetDamaged(int DamageAmount)
         m_currentHealth = 0;
         bIsDead = true;
 
-        // Pobierz w³aœciciela tego komponentu
+        // Pobierz wï¿½aï¿½ciciela tego komponentu
         AActor* OwnerActor = GetOwner();
         if (!OwnerActor)
         {
@@ -236,10 +241,10 @@ void UStatComponent::GetDamaged(int DamageAmount)
             return;
         }
 
-        // SprawdŸ, czy w³aœciciel jest graczem
+        // Sprawdï¿½, czy wï¿½aï¿½ciciel jest graczem
         if (APlayerController* PlayerController = Cast<APlayerController>(OwnerActor->GetInstigatorController()))
         {
-            // Wy³¹cz wejœcie dla gracza
+            // Wyï¿½ï¿½cz wejï¿½cie dla gracza
             if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
             {
                 Subsystem->ClearAllMappings();
@@ -251,10 +256,10 @@ void UStatComponent::GetDamaged(int DamageAmount)
             }
         }
 
-        // Obs³uga fizyki dla ka¿dego aktora z meshem
+        // Obsï¿½uga fizyki dla kaï¿½dego aktora z meshem
         if (USkeletalMeshComponent* Mesh = OwnerActor->FindComponentByClass<USkeletalMeshComponent>())
         {
-            Mesh->SetSimulatePhysics(true); // W³¹cz symulacjê fizyki
+            Mesh->SetSimulatePhysics(true); // Wï¿½ï¿½cz symulacjï¿½ fizyki
             Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
             UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the actor mesh."));
         }
@@ -270,7 +275,7 @@ void UStatComponent::GetDamaged(int DamageAmount)
         AActor* Owner = GetOwner();
         if (Owner)
         {
-            // Ustaw now¹ lokalizacjê w³aœciciela
+            // Ustaw nowï¿½ lokalizacjï¿½ wï¿½aï¿½ciciela
             
            // Owner->SetActorLocation(NewLocation);
         }
@@ -283,7 +288,7 @@ void UStatComponent::GetDamaged(int DamageAmount)
         HealthBar->SetPercent(HealthPercentage);
     }
 
-    // Uzyskaj dostêp do postaci
+    // Uzyskaj dostï¿½p do postaci
 
 };
 
@@ -309,7 +314,7 @@ void UStatComponent::GetRegen()
         m_currentEnergy -= 10;
         if (m_currentEnergy <= 0) {
             m_currentEnergy = 0; 
-            ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner()); // Pobieramy w³aœciciela komponentu (Actor)
+            ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner()); // Pobieramy wï¿½aï¿½ciciela komponentu (Actor)
             bIsSprinting = false;
             CharacterOwner->GetCharacterMovement()->MaxWalkSpeed = m_baseSpeed;
         }
