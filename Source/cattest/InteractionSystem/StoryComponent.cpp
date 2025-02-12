@@ -57,7 +57,7 @@ void UStoryComponent::BeginPlay()
 
     if (QuestLogWidgetClass)
     {
-        // Tworzymy instancjê widgetu, ale nie dodajemy go od razu do widoku
+        // Tworzymy instancjï¿½ widgetu, ale nie dodajemy go od razu do widoku
         QuestLogWidget = CreateWidget<UQuestJournal>(GetWorld(), QuestLogWidgetClass);
 
         if (QuestLogWidget)
@@ -87,9 +87,9 @@ void UStoryComponent::BeginPlay()
     
         UE_LOG(LogTemp, Warning, TEXT("QuestManager initialized!"));
 
-        // Przyk³adowy quest na start
+        // Przykï¿½adowy quest na start
         FQuestStruct1 NewQuest;
-        NewQuest.QuestName = "Zbierz 5 jab³ek";
+        NewQuest.QuestName = "Zbierz 5 jabï¿½ek";
         NewQuest.RequiredAmount = 5;
         NewQuest.CurrentProgress = 0;
 
@@ -97,7 +97,7 @@ void UStoryComponent::BeginPlay()
         
     
 
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStoryComponent::InteractWithWorld, 0.2f, true);
+    // GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStoryComponent::InteractWithWorld, 0.2f, true);
 }
 
 
@@ -117,14 +117,14 @@ void UStoryComponent::InteractWithWorld() {
         FVector CameraLocation;
         FRotator CameraRotation;
 
-        // Pobierz lokalizacjê kamery gracza oraz kierunek patrzenia
+        // Pobierz lokalizacjï¿½ kamery gracza oraz kierunek patrzenia
         PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
         
-        // Pocz¹tek raycasta to pozycja gracza, a kierunek to kierunek patrzenia
+        // Poczï¿½tek raycasta to pozycja gracza, a kierunek to kierunek patrzenia
         FVector StartLocation = GetOwner()->GetActorLocation();  // Pozywcja gracza (kamera)
         FVector ForwardVector = CameraRotation.Vector();  // Kierunek patrzenia (wektor)
 
-        // Okreœlamy punkt koñcowy raycasta (np. 2000 jednostek przed kamer¹)
+        // Okreï¿½lamy punkt koï¿½cowy raycasta (np. 2000 jednostek przed kamerï¿½)
         FVector EndLocation = StartLocation + (ForwardVector * 300.f);
 
         FHitResult HitResult;
@@ -136,14 +136,14 @@ void UStoryComponent::InteractWithWorld() {
 
         if (bHit)
         {
-            // Próbujemy przekastowaæ aktora na ABaseNPC
+            // Prï¿½bujemy przekastowaï¿½ aktora na ABaseNPC
             NewHitActor = Cast<ABaseNPC>(HitResult.GetActor());
 
             if (NewHitActor)
             {
                 UE_LOG(LogTemp, Log, TEXT("Nowy aktor: %s"), *NewHitActor->GetName());
 
-                // Jeœli zmieni³ siê aktor, ukrywamy poprzedni widget
+                // Jeï¿½li zmieniï¿½ siï¿½ aktor, ukrywamy poprzedni widget
                 if (HitActor && HitActor != NewHitActor)
                 {
                     UE_LOG(LogTemp, Log, TEXT("Zmieniono aktora. Ukrywanie widgetu poprzedniego aktora: %s"), *HitActor->GetName());
@@ -168,10 +168,10 @@ void UStoryComponent::InteractWithWorld() {
             {
                 UE_LOG(LogTemp, Log, TEXT("Brak interakcji z aktorem"));
 
-                // Jeœli nie ma interakcji, ukryj widget
+                // Jeï¿½li nie ma interakcji, ukryj widget
                 if (HitActor)
                 {
-                    // Sprawdzamy, czy HitActor to ABaseNPC przed wywo³aniem metody
+                    // Sprawdzamy, czy HitActor to ABaseNPC przed wywoï¿½aniem metody
                     if (ABaseNPC* BaseNPC = Cast<ABaseNPC>(HitActor))
                     {
                         BaseNPC->ShowInteractionWidget(false);
@@ -187,7 +187,7 @@ void UStoryComponent::InteractWithWorld() {
             {
                 UE_LOG(LogTemp, Log, TEXT("Brak trafienia, ukrywanie widgetu dla aktora: %s"), *HitActor->GetName());
 
-                // Sprawdzamy, czy HitActor to ABaseNPC przed wywo³aniem metody
+                // Sprawdzamy, czy HitActor to ABaseNPC przed wywoï¿½aniem metody
                 if (ABaseNPC* BaseNPC = Cast<ABaseNPC>(HitActor))
                 {
                     BaseNPC->ShowInteractionWidget(false);
@@ -213,7 +213,7 @@ void UStoryComponent::InteractWithWorld() {
 
 void UStoryComponent::Interact()
 {
-	// SprawdŸ, czy NPC w zasiêgu
+	// Sprawdï¿½, czy NPC w zasiï¿½gu
 	InteractWithNPC();
     UE_LOG(LogTemp, Log, TEXT("%s trying to interact"), *GetName());
 }
@@ -226,16 +226,16 @@ void UStoryComponent::InteractWithNPC()
             // Sprawdzamy, czy aktor implementuje interfejs IDialogueInterface
     if (HitActor && HitActor->Implements<UDialogueInterface>())
     {
-        // Dopiero teraz robimy castowanie, bo wiemy, ¿e aktor implementuje interfejs
+        // Dopiero teraz robimy castowanie, bo wiemy, ï¿½e aktor implementuje interfejs
         IDialogueInterface* DialogueInterface = Cast<IDialogueInterface>(HitActor);
 
         if (DialogueInterface)
         {
-            // Jeœli trafiliœmy w NPC z interfejsem, rozpoczynamy dialog
+            // Jeï¿½li trafiliï¿½my w NPC z interfejsem, rozpoczynamy dialog
 
             canPerformRaycast = false;
             
-                // Zarejestruj funkcjê ResumeRaycastAfterDialogue do delegata OnDialogueClosed w UDialogueSystem
+                // Zarejestruj funkcjï¿½ ResumeRaycastAfterDialogue do delegata OnDialogueClosed w UDialogueSystem
                
             
             DialogueInterface->StartDialogue();
@@ -262,16 +262,16 @@ void UStoryComponent::OpenMenuWidget()
     UE_LOG(LogTemp, Warning, TEXT("Toggle Journal"));
     if (QuestLogWidget)
     {
-        // Sprawdzamy aktualn¹ widocznoœæ widgetu
+        // Sprawdzamy aktualnï¿½ widocznoï¿½ï¿½ widgetu
         if (QuestLogWidget->IsVisible())
         {
-            // Jeœli widget jest widoczny, ukrywamy go
+            // Jeï¿½li widget jest widoczny, ukrywamy go
             UE_LOG(LogTemp, Warning, TEXT("ukryj journal"));
             QuestLogWidget->SetVisibility(ESlateVisibility::Hidden);
         }
         else
         {
-            // Jeœli widget nie jest widoczny, pokazujemy go
+            // Jeï¿½li widget nie jest widoczny, pokazujemy go
             UE_LOG(LogTemp, Warning, TEXT("pokaz journal"));
             QuestLogWidget->SetVisibility(ESlateVisibility::Visible);
             ShowQuestLog();
@@ -284,13 +284,13 @@ void UStoryComponent::ShowQuestLog()
 {
     if (QuestLogWidget)
     {
-        // Zak³adaj¹c, ¿e masz ju¿ metodê PopulateQuestList w widgetcie
+        // Zakï¿½adajï¿½c, ï¿½e masz juï¿½ metodï¿½ PopulateQuestList w widgetcie
         TArray<FQuestStruct1> ActiveQuests = QuestManager->GetActiveQuests();
 
-        // Wyœwietlenie ich w logu
+        // Wyï¿½wietlenie ich w logu
         for (const FQuestStruct1& Quest : ActiveQuests)
         {
-            UE_LOG(LogTemp, Warning, TEXT("Aktualny quest: %s, Postêp: %d/%d"),
+            UE_LOG(LogTemp, Warning, TEXT("Aktualny quest: %s, Postï¿½p: %d/%d"),
                 *Quest.QuestName, Quest.CurrentProgress, Quest.RequiredAmount);
         }
         

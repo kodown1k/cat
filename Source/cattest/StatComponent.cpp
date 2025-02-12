@@ -40,7 +40,7 @@ void UStatComponent::BeginPlay()
    
 }
 
-void  UStatComponent::RefreshHealthBar() const
+void  UStatComponent::RefreshHealthBar()
 {
     if (HealthBar)
     {
@@ -53,9 +53,6 @@ void  UStatComponent::RefreshHealthBar() const
 void UStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
-    
-    
 
     if (MyWidget && (!HealthBar && !EnergyBar && !ExpBar))
     {
@@ -174,40 +171,45 @@ void UStatComponent::GetHealed2(int val)
 
 void UStatComponent::AddDamaged(int val)
 {
-    if (bIsDead) {
-        return;
-    }
+    // if (bIsDead) {
+    //     return;
+    // }
 
     m_currentHealth -= val;
-    if (m_currentHealth <= 0 && !bIsDead)
+    if (HealthBar)
     {
-        m_currentHealth = 0;
-        bIsDead = true;
-        // if (APlayerController* PlayerController = Cast<APlayerController>(CattestCharacter->GetController()))
-        // {
-        //     if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-        //     {
-        //         Subsystem->ClearAllMappings();
-        //         UE_LOG(LogTemp, Log, TEXT("Player input disabled using Enhanced Input."));
-        //     }
-        //     else
-        //     {
-        //         UE_LOG(LogTemp, Error, TEXT("Failed to access Enhanced Input Subsystem."));
-        //     }
-        //     if (USkeletalMeshComponent* Mesh = CattestCharacter->GetMesh())
-        //     {
-        //         Mesh->SetSimulatePhysics(true); // W��cz symulacj� fizyki
-        //         Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
-        //         UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the player mesh."));
-        //     }
-        //     else
-        //     {
-        //         UE_LOG(LogTemp, Error, TEXT("Failed to access player mesh."));
-        //     }
-        // }
+        HealthBar->SetPercent(m_currentHealth / m_maxHealth);
     }
-
-    RefreshHealthBar();
+    //
+    // if (m_currentHealth <= 0 && !bIsDead)
+    // {
+    //     m_currentHealth = 0;
+    //     bIsDead = true;
+    //     // if (APlayerController* PlayerController = Cast<APlayerController>(CattestCharacter->GetController()))
+    //     // {
+    //     //     if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+    //     //     {
+    //     //         Subsystem->ClearAllMappings();
+    //     //         UE_LOG(LogTemp, Log, TEXT("Player input disabled using Enhanced Input."));
+    //     //     }
+    //     //     else
+    //     //     {
+    //     //         UE_LOG(LogTemp, Error, TEXT("Failed to access Enhanced Input Subsystem."));
+    //     //     }
+    //     //     if (USkeletalMeshComponent* Mesh = CattestCharacter->GetMesh())
+    //     //     {
+    //     //         Mesh->SetSimulatePhysics(true); // W��cz symulacj� fizyki
+    //     //         Mesh->SetCollisionProfileName(TEXT("Ragdoll")); // Ustaw profil kolizji
+    //     //         UE_LOG(LogTemp, Log, TEXT("Physics simulation enabled for the player mesh."));
+    //     //     }
+    //     //     else
+    //     //     {
+    //     //         UE_LOG(LogTemp, Error, TEXT("Failed to access player mesh."));
+    //     //     }
+    //     // }
+    // }
+    //
+    // RefreshHealthBar();
 
     // Uzyskaj dost�p do postaci
 
