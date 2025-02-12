@@ -137,9 +137,11 @@ protected:
     UProgressBar* ExpBar;
 
     bool bIsSprinting;
+	
+	UPROPERTY(BlueprintReadWrite)
     bool bIsDead;
 
-	void RefreshHealthBar() const;
+	void RefreshHealthBar();
     
     
 
