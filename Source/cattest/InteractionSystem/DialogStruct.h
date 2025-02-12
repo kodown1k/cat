@@ -38,5 +38,21 @@ struct FDialogStruct : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 NextID;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool ActivateQuest;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 ActivateQuestID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool isQuestRelated;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 questID;
+    
+    
+
+    
+
 
 };

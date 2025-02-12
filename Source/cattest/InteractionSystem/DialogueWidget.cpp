@@ -1,6 +1,7 @@
 #include "DialogueWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "ButtonDialogueWidget.h"
+#include "StoryComponent.h"
 
 void UDialogueWidget::NativeConstruct()
 {
@@ -15,6 +16,8 @@ void UDialogueWidget::NativeConstruct()
 
 void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueOption, int32 StartDialogueIndex)
 {
+    questIDToActivate = 0;
+
     UE_LOG(LogTemp, Warning, TEXT("ccurrentindex %d"), StartDialogueIndex);
     DialogueOption = inDialogueOption;
     // Sprawdzamy, czy mamy dane w tablicy
@@ -62,11 +65,40 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
         // Zabezpieczenie przed prób¹ ustawienia tekstu na wiêcej ni¿ 6 przyciskach
         for (int32 i = 0; i < OptionCount; i++)
         {
-            
+            UE_LOG(LogTemp, Warning, TEXT("quest related %d : %s"),
+                i + 1, DialogueOption[StartDialogueIndex + i+1]->isQuestRelated ? TEXT("True") : TEXT("False"));
+
+            if (DialogueOption[StartDialogueIndex + i + 1]->isQuestRelated) {
+                if (!PlayerCharacter) {
+                    PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+                    UE_LOG(LogTemp, Warning, TEXT("not Found Player Character:"));
+                }
+                if (PlayerCharacter)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("Found Player Character:"));
+                    UStoryComponent* StoryComponent = PlayerCharacter->FindComponentByClass<UStoryComponent>();
+                    if (!StoryComponent->IsQuestActive(DialogueOption[StartDialogueIndex + i + 1]->questID)) {
+                    
+                        UE_LOG(LogTemp, Warning, TEXT("quest is not active skipping dialog option: "), DialogueOption[StartDialogueIndex + i + 1]->questID);
+                        switch (i)
+                        {
+                        case 0: if (OptionButton1) OptionButton1->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 1: if (OptionButton2) OptionButton2->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 2: if (OptionButton3) OptionButton3->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 3: if (OptionButton4) OptionButton4->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 4: if (OptionButton5) OptionButton5->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 5: if (OptionButton6) OptionButton6->SetVisibility(ESlateVisibility::Collapsed); break;
+                        }
+                        continue;
+                    }
+                }
+
+            }
 
             FText OptionText = CurrentIndexOption->Text; // U¿ywamy tekstu z bie¿¹cej opcji
 
             // Zabezpieczenie przed dostêpem do nieistniej¹cego przycisku
+            
             switch (i)
             {
             case 0:
@@ -77,6 +109,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     OptionButton1->OnClicked.RemoveAll(this);
                     OptionButton1->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked1);
                     ClickedOption1 = DialogueOption[StartDialogueIndex + 1]->NextID;
+                    if (DialogueOption[StartDialogueIndex + 1]->ActivateQuest) {
+                        questIDToActivate = DialogueOption[StartDialogueIndex + 1]->ActivateQuestID;
+                    }
                 }
 
 
@@ -89,7 +124,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     ClickedOption2 = DialogueOption[StartDialogueIndex + 2]->NextID;
                     OptionButton2->OnClicked.RemoveAll(this);
                     OptionButton2->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked2);
-                    
+                    if (DialogueOption[StartDialogueIndex + 2]->ActivateQuest) {
+                        questIDToActivate = DialogueOption[StartDialogueIndex + 2]->ActivateQuestID;
+                    }
                     
                 }
                 break;
@@ -101,7 +138,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     OptionButton3->OnClicked.RemoveAll(this);
                     OptionButton3->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked3);
                     ClickedOption3 = DialogueOption[StartDialogueIndex + 3]->NextID;
-                    
+                    if (DialogueOption[StartDialogueIndex + 3]->ActivateQuest) {
+                        questIDToActivate = DialogueOption[StartDialogueIndex + 3]->ActivateQuestID;
+                    }
                 }
                 break;
             case 3:
@@ -111,6 +150,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     OptionButton4->OnClicked.RemoveAll(this);
                     OptionButton4->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked4);
                     ClickedOption4 = DialogueOption[StartDialogueIndex + 4]->NextID;
+                    if (DialogueOption[StartDialogueIndex + 4]->ActivateQuest) {
+                        questIDToActivate = DialogueOption[StartDialogueIndex + 4]->ActivateQuestID;
+                    }
                 }
                 break;
             case 4:
@@ -120,6 +162,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     OptionButton5->OnClicked.RemoveAll(this);
                     OptionButton5->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked5);
                     ClickedOption5 = DialogueOption[StartDialogueIndex + 5]->NextID;
+                    if (DialogueOption[StartDialogueIndex + 5]->ActivateQuest) {
+                        questIDToActivate = DialogueOption[StartDialogueIndex + 5]->ActivateQuestID;
+                    }
                 }
                 break;
             case 5:
@@ -129,6 +174,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     OptionButton6->OnClicked.RemoveAll(this);
                     OptionButton6->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked6);
                     ClickedOption6 = DialogueOption[StartDialogueIndex + 6]->NextID;
+                    if (DialogueOption[StartDialogueIndex + 1]->ActivateQuest) {
+                        questIDToActivate = DialogueOption[StartDialogueIndex + 6]->ActivateQuestID;
+                    }
                 }
                 break;
             }
@@ -162,6 +210,12 @@ void UDialogueWidget::CloseDialogue()
 
     // Ukrywanie widgetu
     this->RemoveFromParent();
+
+}
+
+void UDialogueWidget::ActivateQuest(bool activate, int32 questID)
+{
+    OnDialogueQuest.Broadcast(activate, questID);
 
 }
 
@@ -201,6 +255,10 @@ void UDialogueWidget::OnDialogueOptionClicked1()
 {
 
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption1);
+    if (questIDToActivate != 0) {
+        ActivateQuest(true, questIDToActivate);
+    }
+
     if (ClickedOption1 == -1) {
 
         SetVisibility(ESlateVisibility::Hidden); // Ustawienie widgetu jako niewidocznego, opcjonalne
@@ -225,7 +283,9 @@ void UDialogueWidget::OnDialogueOptionClicked1()
 
 void UDialogueWidget::OnDialogueOptionClicked2()
 {
-
+    if (questIDToActivate != 0) {
+        ActivateQuest(true, questIDToActivate);
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption2);
     if (ClickedOption2 == -1) {
 
@@ -252,6 +312,9 @@ void UDialogueWidget::OnDialogueOptionClicked2()
 void UDialogueWidget::OnDialogueOptionClicked3()
 {
 
+    if (questIDToActivate != 0) {
+        OnDialogueQuest.Broadcast(true, questIDToActivate); // Activates quest with ID 101
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption3);
     if (ClickedOption3 == -1) {
 
@@ -277,7 +340,9 @@ void UDialogueWidget::OnDialogueOptionClicked3()
 
 void UDialogueWidget::OnDialogueOptionClicked4()
 {
-
+    if (questIDToActivate != 0) {
+        ActivateQuest(true, questIDToActivate);
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption4);
     if (ClickedOption4 == -1) {
 
@@ -303,7 +368,9 @@ void UDialogueWidget::OnDialogueOptionClicked4()
 
 void UDialogueWidget::OnDialogueOptionClicked5()
 {
-
+    if (questIDToActivate != 0) {
+        ActivateQuest(true, questIDToActivate);
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption5);
     if (ClickedOption5 == -1) {
 
@@ -329,7 +396,9 @@ void UDialogueWidget::OnDialogueOptionClicked5()
 
 void UDialogueWidget::OnDialogueOptionClicked6()
 {
-
+    if (questIDToActivate != 0) {
+        ActivateQuest(true, questIDToActivate);
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption6);
     if (ClickedOption6 == -1) {
 

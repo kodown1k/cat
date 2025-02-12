@@ -16,8 +16,10 @@ UStoryComponent::UStoryComponent()
     canPerformRaycast = true;	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+    QuestManager = CreateDefaultSubobject<AQuestManager>(TEXT("QuestManager"));
+    UE_LOG(LogTemp, Warning, TEXT("QuestManager zosta³ stworzony dynamicznie!"));
 	// ...
+    
 }
 
 void UStoryComponent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -36,6 +38,24 @@ void UStoryComponent::BeginPlay()
     Super::BeginPlay();
 
     // Indeks 0 oznacza gracza nr 1 (w grze jednoosobowej)
+    
+    if (QuestManager)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("QuestManager znaleziony w StoryComponent!"));
+        if (QuestManagerDatatable)
+        {
+            QuestManager->SetQuestDataTable(QuestManagerDatatable);
+            UE_LOG(LogTemp, Warning, TEXT("Zaladowano QuestDataTable"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("QuestManagerDatatable jest NULL!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Brak QuestManagera w StoryComponent!"));
+    }
 
     if (InteractAction) {
         if (UEnhancedInputComponent* EnhancedInputComponent = GetOwner()->GetComponentByClass<UEnhancedInputComponent>())
@@ -72,17 +92,7 @@ void UStoryComponent::BeginPlay()
     }
 
     
-    QuestManager = NewObject<AQuestManager>(this, AQuestManager::StaticClass());
-
-
-        if (QuestManager)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("QuestManager znaleziony w StoryComponent!"));
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Brak QuestManagera w StoryComponent!"));
-        }
+    
     
     
         UE_LOG(LogTemp, Warning, TEXT("QuestManager initialized!"));
@@ -141,7 +151,7 @@ void UStoryComponent::InteractWithWorld() {
 
             if (NewHitActor)
             {
-                UE_LOG(LogTemp, Log, TEXT("Nowy aktor: %s"), *NewHitActor->GetName());
+                //UE_LOG(LogTemp, Log, TEXT("Nowy aktor: %s"), *NewHitActor->GetName());
 
                 // Jeœli zmieni³ siê aktor, ukrywamy poprzedni widget
                 if (HitActor && HitActor != NewHitActor)
@@ -166,7 +176,7 @@ void UStoryComponent::InteractWithWorld() {
             }
             else
             {
-                UE_LOG(LogTemp, Log, TEXT("Brak interakcji z aktorem"));
+                //UE_LOG(LogTemp, Log, TEXT("Brak interakcji z aktorem"));
 
                 // Jeœli nie ma interakcji, ukryj widget
                 if (HitActor)
@@ -185,7 +195,7 @@ void UStoryComponent::InteractWithWorld() {
         {
             if (HitActor)
             {
-                UE_LOG(LogTemp, Log, TEXT("Brak trafienia, ukrywanie widgetu dla aktora: %s"), *HitActor->GetName());
+                //UE_LOG(LogTemp, Log, TEXT("Brak trafienia, ukrywanie widgetu dla aktora: %s"), *HitActor->GetName());
 
                 // Sprawdzamy, czy HitActor to ABaseNPC przed wywo³aniem metody
                 if (ABaseNPC* BaseNPC = Cast<ABaseNPC>(HitActor))
@@ -294,7 +304,63 @@ void UStoryComponent::ShowQuestLog()
                 *Quest.QuestName, Quest.CurrentProgress, Quest.RequiredAmount);
         }
         
-        QuestLogWidget->PopulateQuestList(QuestManager->GetActiveQuests());
+        QuestLogWidget->PopulateQuestList(ActiveQuests);
         
+    }
+}
+
+void UStoryComponent::UpdateDataTable(int32 QuestID, bool NewStatus)
+{
+    if (!QuestManagerDatatable)
+    {
+        UE_LOG(LogTemp, Error, TEXT("QuestManagerDatatable is NULL!"));
+        return;
+    }
+
+    static const FString ContextString(TEXT("Quest Data Lookup"));
+
+    // Pobranie wiersza na podstawie QuestID
+    FQuestStruct1* QuestRow = QuestManagerDatatable->FindRow<FQuestStruct1>(
+        *FString::FromInt(QuestID), ContextString);
+
+    if (QuestRow)
+    {
+        // Aktualizacja wartoœci w strukturze
+        QuestRow->bIsActive = NewStatus;
+
+        UE_LOG(LogTemp, Warning, TEXT("Updated Quest ID: %d, New Active Status: %s"),
+            QuestID, QuestRow->bIsActive ? TEXT("True") : TEXT("False"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Quest ID %d not found in DataTable!"), QuestID);
+    }
+}
+
+bool UStoryComponent::IsQuestActive(int32 QuestID)
+{
+    if (!QuestManagerDatatable)
+    {
+        UE_LOG(LogTemp, Error, TEXT("QuestManagerDatatable is NULL!"));
+        return false; // Jeœli DataTable nie istnieje, zwracamy false
+    }
+
+    static const FString ContextString(TEXT("Quest Data Lookup"));
+
+    // Pobranie wiersza na podstawie QuestID
+    FQuestStruct1* QuestRow = QuestManagerDatatable->FindRow<FQuestStruct1>(
+        FName(*FString::FromInt(QuestID)), ContextString);
+
+    if (QuestRow)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Quest ID: %d, Active Status: %s"),
+            QuestID, QuestRow->bIsActive ? TEXT("True") : TEXT("False"));
+
+        return QuestRow->bIsActive; // Zwracamy wartoœæ bIsActive
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Quest ID %d not found in DataTable!"), QuestID);
+        return false; // Jeœli quest nie istnieje, zwracamy false
     }
 }

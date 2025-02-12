@@ -16,7 +16,7 @@ class CATTEST_API UDialogueSystem : public UObject
 
 public:
     UDialogueSystem();
-
+    void BeginPlay();
     // Funkcja do wczytania dialogów z DataTable
     void LoadDialogueData(UDataTable* DialogueDataTable, int32 NPC_ID, TSubclassOf<UDialogueWidget> NewWidgetClass);
 
@@ -28,8 +28,14 @@ public:
 
     UFUNCTION()
     void EnablePlayerMovement();
+    void UpdateQuest();
     UFUNCTION()
     void DisablePlayerMovement();
+    UFUNCTION()
+    void HandleDialogueQuest(bool activateQuest, int32 questID);
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) //referencja do gracza
+    ACharacter* PlayerCharacter;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
@@ -44,4 +50,5 @@ private:
     
 
 };
+
 

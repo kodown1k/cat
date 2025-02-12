@@ -23,7 +23,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDialogueClosed);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDialogueQuest, bool, activateQuest, int32, questID);
 UCLASS()
 class CATTEST_API UDialogueWidget : public UCommonActivatableWidget
 {
@@ -40,9 +40,15 @@ public:
 
     
     FOnDialogueClosed OnDialogueClosed; // Delegat, wywo³ywany przy zamkniêciu dialogu
-
+    FOnDialogueQuest OnDialogueQuest; // Delegat, wywo³ywany przy zamkniêciu dialogu
     UFUNCTION()
     void CloseDialogue(); // Funkcja zamykaj¹ca dialog
+    UFUNCTION()
+    void ActivateQuest(bool activate, int32 questID);
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) //referencja do gracza
+        ACharacter* PlayerCharacter;
+    
 protected:
     // Referencja do VerticalBox, w którym bêd¹ przechowywane przyciski
     UPROPERTY(meta = (BindWidget))
@@ -116,6 +122,7 @@ private:
     void OnDialogueOptionClicked6();
 
     TArray<FDialogStruct*> DialogueOption;  // Tablica z opcjami dialogowymi
+    int32 questIDToActivate;
     int32 CurrentDialogueIndex;  // Indeks bie¿¹cego dialogu
     int32 ClickedOption6;  // Indeks bie¿¹cego dialogu
     int32 ClickedOption1;  // Indeks bie¿¹cego dialogu
@@ -124,4 +131,5 @@ private:
     int32 ClickedOption4;  // Indeks bie¿¹cego dialogu
     int32 ClickedOption5;  // Indeks bie¿¹cego dialogu
     int32 ClickedOption;
+    
 };

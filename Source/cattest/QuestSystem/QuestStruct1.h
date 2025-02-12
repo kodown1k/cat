@@ -23,7 +23,7 @@ enum class EQuestType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct CATTEST_API FQuestStruct1
+struct CATTEST_API FQuestStruct1 : public FTableRowBase
 {
     GENERATED_BODY()
 public:
