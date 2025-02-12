@@ -77,7 +77,11 @@ public:
 	UFUNCTION()
 	void UpdateDataTable(int32 QuestID, bool NewStatus);
 	UFUNCTION()
+	void UpdateDataTableCompleteQuest(int32 QuestID, bool NewStatus);
+	UFUNCTION()
 	bool IsQuestActive(int32 QuestID);
+	UFUNCTION()
+	bool IsQuestCompleted(int32 QuestID);
 
 	
 	

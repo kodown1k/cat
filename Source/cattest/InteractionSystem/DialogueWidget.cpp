@@ -91,6 +91,20 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                         }
                         continue;
                     }
+                    if (StoryComponent->IsQuestCompleted(DialogueOption[StartDialogueIndex + i + 1]->questID)) {
+
+                        UE_LOG(LogTemp, Warning, TEXT("quest is not active skipping dialog option: "), DialogueOption[StartDialogueIndex + i + 1]->questID);
+                        switch (i)
+                        {
+                        case 0: if (OptionButton1) OptionButton1->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 1: if (OptionButton2) OptionButton2->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 2: if (OptionButton3) OptionButton3->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 3: if (OptionButton4) OptionButton4->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 4: if (OptionButton5) OptionButton5->SetVisibility(ESlateVisibility::Collapsed); break;
+                        case 5: if (OptionButton6) OptionButton6->SetVisibility(ESlateVisibility::Collapsed); break;
+                        }
+                        continue;
+                    }
                 }
 
             }
@@ -112,6 +126,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 1]->ActivateQuest) {
                         questIDToActivate = DialogueOption[StartDialogueIndex + 1]->ActivateQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 1]->isQuestCompleted) {
+                        questIDToComplete = DialogueOption[StartDialogueIndex + 1]->completedQuestID;
+                    }
                 }
 
 
@@ -127,6 +144,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 2]->ActivateQuest) {
                         questIDToActivate = DialogueOption[StartDialogueIndex + 2]->ActivateQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 2]->isQuestCompleted) {
+                        questIDToComplete = DialogueOption[StartDialogueIndex + 2]->completedQuestID;
+                    }
                     
                 }
                 break;
@@ -141,6 +161,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 3]->ActivateQuest) {
                         questIDToActivate = DialogueOption[StartDialogueIndex + 3]->ActivateQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 3]->isQuestCompleted) {
+                        questIDToComplete = DialogueOption[StartDialogueIndex + 3]->completedQuestID;
+                    }
                 }
                 break;
             case 3:
@@ -152,6 +175,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     ClickedOption4 = DialogueOption[StartDialogueIndex + 4]->NextID;
                     if (DialogueOption[StartDialogueIndex + 4]->ActivateQuest) {
                         questIDToActivate = DialogueOption[StartDialogueIndex + 4]->ActivateQuestID;
+                    }
+                    if (DialogueOption[StartDialogueIndex + 4]->isQuestCompleted) {
+                        questIDToComplete = DialogueOption[StartDialogueIndex + 4]->completedQuestID;
                     }
                 }
                 break;
@@ -165,6 +191,9 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 5]->ActivateQuest) {
                         questIDToActivate = DialogueOption[StartDialogueIndex + 5]->ActivateQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 5]->isQuestCompleted) {
+                        questIDToComplete = DialogueOption[StartDialogueIndex + 5]->completedQuestID;
+                    }
                 }
                 break;
             case 5:
@@ -174,8 +203,11 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     OptionButton6->OnClicked.RemoveAll(this);
                     OptionButton6->OnClicked.AddDynamic(this, &UDialogueWidget::OnDialogueOptionClicked6);
                     ClickedOption6 = DialogueOption[StartDialogueIndex + 6]->NextID;
-                    if (DialogueOption[StartDialogueIndex + 1]->ActivateQuest) {
+                    if (DialogueOption[StartDialogueIndex + 6]->ActivateQuest) {
                         questIDToActivate = DialogueOption[StartDialogueIndex + 6]->ActivateQuestID;
+                    }
+                    if (DialogueOption[StartDialogueIndex + 6]->isQuestCompleted) {
+                        questIDToComplete = DialogueOption[StartDialogueIndex + 6]->completedQuestID;
                     }
                 }
                 break;
@@ -216,6 +248,12 @@ void UDialogueWidget::CloseDialogue()
 void UDialogueWidget::ActivateQuest(bool activate, int32 questID)
 {
     OnDialogueQuest.Broadcast(activate, questID);
+
+}
+
+void UDialogueWidget::CompleteQuest(bool activate, int32 questID)
+{
+    OnDialogueQuestCompleted.Broadcast(activate, questID);
 
 }
 
@@ -286,6 +324,9 @@ void UDialogueWidget::OnDialogueOptionClicked2()
     if (questIDToActivate != 0) {
         ActivateQuest(true, questIDToActivate);
     }
+    if (questIDToComplete != 0) {
+        CompleteQuest(true, questIDToComplete);
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption2);
     if (ClickedOption2 == -1) {
 
@@ -315,6 +356,9 @@ void UDialogueWidget::OnDialogueOptionClicked3()
     if (questIDToActivate != 0) {
         OnDialogueQuest.Broadcast(true, questIDToActivate); // Activates quest with ID 101
     }
+    if (questIDToComplete != 0) {
+        CompleteQuest(true, questIDToComplete);
+    }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption3);
     if (ClickedOption3 == -1) {
 
@@ -342,6 +386,9 @@ void UDialogueWidget::OnDialogueOptionClicked4()
 {
     if (questIDToActivate != 0) {
         ActivateQuest(true, questIDToActivate);
+    }
+    if (questIDToComplete != 0) {
+        CompleteQuest(true, questIDToComplete);
     }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption4);
     if (ClickedOption4 == -1) {
@@ -371,6 +418,11 @@ void UDialogueWidget::OnDialogueOptionClicked5()
     if (questIDToActivate != 0) {
         ActivateQuest(true, questIDToActivate);
     }
+
+    if (questIDToComplete != 0) {
+        CompleteQuest(true, questIDToComplete);
+    }
+
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption5);
     if (ClickedOption5 == -1) {
 
@@ -398,6 +450,9 @@ void UDialogueWidget::OnDialogueOptionClicked6()
 {
     if (questIDToActivate != 0) {
         ActivateQuest(true, questIDToActivate);
+    }
+    if (questIDToComplete != 0) {
+        CompleteQuest(true, questIDToComplete);
     }
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption6);
     if (ClickedOption6 == -1) {

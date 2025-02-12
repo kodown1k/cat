@@ -49,6 +49,12 @@ struct FDialogStruct : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 questID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool isQuestCompleted;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 completedQuestID;
     
     
 

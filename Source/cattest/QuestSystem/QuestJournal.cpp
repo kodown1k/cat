@@ -18,8 +18,6 @@ void UQuestJournal::PopulateQuestList(TArray<FQuestStruct1> ActiveQuests)
 {
     // Pobieramy istniej¹ce wpisy
     TArray<UWidget*> ExistingChildren = QuestList->GetAllChildren();
-
-    // Mapa do œledzenia istniej¹cych questów
     TMap<FString, UW_QuestEntry*> QuestMap;
 
     // Wype³niamy mapê istniej¹cych wpisów
@@ -32,17 +30,42 @@ void UQuestJournal::PopulateQuestList(TArray<FQuestStruct1> ActiveQuests)
         }
     }
 
+    // Lista aktywnych questów do ³atwego sprawdzania
+    TSet<FString> ActiveQuestNames;
+    for (const FQuestStruct1& Quest : ActiveQuests)
+    {
+        if (Quest.bIsActive)
+        {
+            ActiveQuestNames.Add(Quest.QuestName);
+        }
+    }
+
+    // Usuwamy questy, które by³y aktywne, ale teraz ich nie ma w ActiveQuests lub sta³y siê nieaktywne
+    for (auto& Entry : QuestMap)
+    {
+        if (!ActiveQuestNames.Contains(Entry.Key))
+        {
+            Entry.Value->RemoveFromParent(); // Usuwamy z UI
+            UE_LOG(LogTemp, Warning, TEXT("Usuniêto quest: %s"), *Entry.Key);
+        }
+    }
+
     // Przetwarzamy nowe questy
     for (const FQuestStruct1& Quest : ActiveQuests)
     {
+        if (!Quest.bIsActive)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Pominiêto nieaktywny quest: %s"), *Quest.QuestName);
+            continue;
+        }
+
         if (QuestMap.Contains(Quest.QuestName))
         {
-            // ? Jeœli quest ju¿ istnieje, aktualizujemy go
+            // Aktualizujemy istniej¹cy quest
             UW_QuestEntry* ExistingEntry = QuestMap[Quest.QuestName];
             ExistingEntry->CurrentProgress = Quest.CurrentProgress;
             ExistingEntry->RequiredAmount = Quest.RequiredAmount;
 
-            // Aktualizujemy teksty
             ExistingEntry->QuestName->SetText(FText::FromString(Quest.QuestName));
             ExistingEntry->DescriptionText->SetText(FText::FromString(Quest.Description));
 
@@ -50,7 +73,7 @@ void UQuestJournal::PopulateQuestList(TArray<FQuestStruct1> ActiveQuests)
         }
         else
         {
-            // ? Jeœli quest nie istnieje, tworzymy nowy widget
+            // Tworzymy nowy wpis
             UW_QuestEntry* NewEntry = CreateWidget<UW_QuestEntry>(GetWorld(), QuestEntryWidgetClass);
 
             if (NewEntry)

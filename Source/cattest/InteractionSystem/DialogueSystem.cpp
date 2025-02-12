@@ -56,6 +56,7 @@ void UDialogueSystem::ShowDialogueWidget()
                 {
                     DialogueWidget->OnDialogueClosed.AddDynamic(this, &UDialogueSystem::EnablePlayerMovement);
                     DialogueWidget->OnDialogueQuest.AddDynamic(this, &UDialogueSystem::HandleDialogueQuest);
+                    DialogueWidget->OnDialogueQuestCompleted.AddDynamic(this, &UDialogueSystem::HandleDialogueQuestCompleted);
                     
                     DialogueWidget->SetVisibility(ESlateVisibility::Hidden); // Ukryty na start
 
@@ -124,6 +125,31 @@ void UDialogueSystem::HandleDialogueQuest(bool activateQuest, int32 questID)
             UStoryComponent* StoryComponent = PlayerCharacter->FindComponentByClass<UStoryComponent>();
             if (StoryComponent) {
                 StoryComponent->UpdateDataTable(questID, true);
+                UE_LOG(LogTemp, Warning, TEXT("Activating Quest: "), questID);
+            }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Deactivating Quest: %d"), questID);
+    }
+}
+
+void UDialogueSystem::HandleDialogueQuestCompleted(bool completeQuest, int32 questID)
+{
+    if (completeQuest)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Completing Quest: %d"), questID);
+        if (!PlayerCharacter) {
+            PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+        }
+        if (PlayerCharacter)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Found Player Character:"));
+            UStoryComponent* StoryComponent = PlayerCharacter->FindComponentByClass<UStoryComponent>();
+            if (StoryComponent) {
+                StoryComponent->UpdateDataTable(questID, false);
+                StoryComponent->UpdateDataTableCompleteQuest(questID, true);
                 UE_LOG(LogTemp, Warning, TEXT("Activating Quest: "), questID);
             }
         }

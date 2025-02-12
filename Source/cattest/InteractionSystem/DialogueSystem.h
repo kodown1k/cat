@@ -32,7 +32,9 @@ public:
     UFUNCTION()
     void DisablePlayerMovement();
     UFUNCTION()
-    void HandleDialogueQuest(bool activateQuest, int32 questID);
+    void HandleDialogueQuest(bool activateQuest, int32 questID); //DODAJE QUESTA
+    UFUNCTION()
+    void HandleDialogueQuestCompleted(bool activateQuest, int32 questID);//KONCZY QUESTA
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) //referencja do gracza
     ACharacter* PlayerCharacter;
