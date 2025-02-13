@@ -7,6 +7,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "DialogueSystem.generated.h"
 
+
+
 class UDialogueWidget;
 
 UCLASS()

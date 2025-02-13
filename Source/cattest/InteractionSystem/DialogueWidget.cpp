@@ -14,10 +14,12 @@ void UDialogueWidget::NativeConstruct()
     }
 }
 
-void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueOption, int32 StartDialogueIndex)
+void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueOption, int32 _StartDialogueIndex)
 {
-    questIDToActivate = 0;
 
+    SetOptionsButtonHidden();
+    questIDToActivate = 0;
+    StartDialogueIndex = _StartDialogueIndex;
     UE_LOG(LogTemp, Warning, TEXT("ccurrentindex %d"), StartDialogueIndex);
     DialogueOption = inDialogueOption;
     // Sprawdzamy, czy mamy dane w tablicy
@@ -27,7 +29,7 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
         return;
     }
 
-    FDialogStruct* CurrentIndexOption = DialogueOption[StartDialogueIndex];
+    CurrentIndexOption = DialogueOption[StartDialogueIndex];
 
     // Sprawdzamy, czy CurrentIndexOption jest wa¿ny
     if (!CurrentIndexOption)
@@ -39,6 +41,7 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
     // Jeœli NPC mówi, wyœwietlamy jego tekst
     if (CurrentIndexOption->bIsNPC && CurrentIndexOption->bShow)  // Jeœli NPC mówi i tekst ma byæ wyœwietlony
     {
+        OptionCount = CurrentIndexOption->Options; //ZAPISUJEMY ILOSC ODPOWIEDZI
         if (NPCTextBlock)
         {
             UE_LOG(LogTemp, Warning, TEXT("Znalaz³em tekst! NPCTextBlock: %p"), NPCTextBlock);
@@ -50,6 +53,22 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
             UE_LOG(LogTemp, Warning, TEXT("NPC Text is empty!"));
             return;
         }
+        soundToPlay = CurrentIndexOption->soundBase;
+        if (soundToPlay)
+        {
+            float soundDuration = soundToPlay->GetDuration();  // Pobierz czas trwania dŸwiêku
+            UGameplayStatics::PlaySound2D(this, soundToPlay);  // Odtwórz dŸwiêk
+
+            // Ustaw timer, aby wywo³a³ kontynuacjê po czasie trwania dŸwiêku
+            FTimerHandle TimerHandle;
+
+            GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UDialogueWidget::SetOptionVisibility, soundDuration, false);
+
+        }
+        else {
+            SetOptionVisibility();
+        }
+        
     }
 
     // Sprawdzamy, czy s¹ opcje do wyœwietlenia
@@ -57,8 +76,8 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
     if (CurrentIndexOption->Options > 0) // Tylko gdy opcje maj¹ byæ widoczne
     {
         // Zabezpieczenie przed przekroczeniem liczby opcji
-        int32 OptionCount = CurrentIndexOption->Options;
-        SetOptionVisibility(OptionCount);
+        
+        
         
         UE_LOG(LogTemp, Warning, TEXT("Option counter %d"), OptionCount);
 
@@ -129,6 +148,10 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 1]->isQuestCompleted) {
                         questIDToComplete = DialogueOption[StartDialogueIndex + 1]->completedQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 1]->soundBase) {
+                        soundToPlay1 = DialogueOption[StartDialogueIndex + 1]->soundBase;
+                    }
+                    
                 }
 
 
@@ -147,6 +170,10 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 2]->isQuestCompleted) {
                         questIDToComplete = DialogueOption[StartDialogueIndex + 2]->completedQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 2]->soundBase) {
+                        soundToPlay2 = DialogueOption[StartDialogueIndex + 2]->soundBase;
+                    }
+                   
                     
                 }
                 break;
@@ -164,6 +191,10 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 3]->isQuestCompleted) {
                         questIDToComplete = DialogueOption[StartDialogueIndex + 3]->completedQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 3]->soundBase) {
+                        soundToPlay3 = DialogueOption[StartDialogueIndex + 3]->soundBase;
+                    }
+                    
                 }
                 break;
             case 3:
@@ -179,6 +210,10 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 4]->isQuestCompleted) {
                         questIDToComplete = DialogueOption[StartDialogueIndex + 4]->completedQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 4]->soundBase) {
+                        soundToPlay4 = DialogueOption[StartDialogueIndex + 4]->soundBase;
+                    }
+                    
                 }
                 break;
             case 4:
@@ -194,6 +229,10 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 5]->isQuestCompleted) {
                         questIDToComplete = DialogueOption[StartDialogueIndex + 5]->completedQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 5]->soundBase) {
+                        soundToPlay5 = DialogueOption[StartDialogueIndex + 5]->soundBase;
+                    }
+                    
                 }
                 break;
             case 5:
@@ -209,6 +248,10 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
                     if (DialogueOption[StartDialogueIndex + 6]->isQuestCompleted) {
                         questIDToComplete = DialogueOption[StartDialogueIndex + 6]->completedQuestID;
                     }
+                    if (DialogueOption[StartDialogueIndex + 6]->soundBase) {
+                        soundToPlay6 = DialogueOption[StartDialogueIndex + 6]->soundBase;
+                    }
+                    
                 }
                 break;
             }
@@ -224,7 +267,7 @@ void UDialogueWidget::PopulateDialogueOptions(TArray<FDialogStruct*> inDialogueO
 }
 
 
-void UDialogueWidget::SetOptionVisibility(int32 OptionCount)
+void UDialogueWidget::SetOptionVisibility()
 {
     // Ukryj opcje, które nie s¹ potrzebne
     OptionButton1->SetVisibility(OptionCount >= 1 ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
@@ -290,7 +333,10 @@ void UDialogueWidget::OnDialogueOptionClicked(int32 clickedOptionId)
 
 
 void UDialogueWidget::OnDialogueOptionClicked1()
-{
+{   
+    if (soundToPlay1) {
+        UGameplayStatics::PlaySound2D(this, soundToPlay);  // Odtwórz dŸwiêk
+    }
 
     UE_LOG(LogTemp, Warning, TEXT("Clicked option index %d."), ClickedOption1);
     if (questIDToActivate != 0) {
@@ -319,8 +365,12 @@ void UDialogueWidget::OnDialogueOptionClicked1()
     }
 }
 
+
+
 void UDialogueWidget::OnDialogueOptionClicked2()
 {
+    
+    
     if (questIDToActivate != 0) {
         ActivateQuest(true, questIDToActivate);
     }
@@ -475,4 +525,17 @@ void UDialogueWidget::OnDialogueOptionClicked6()
         // Zaktualizowanie widgetu z nowymi opcjami
         PopulateDialogueOptions(DialogueOption, ClickedOption6);
     }
+}
+
+
+
+void UDialogueWidget::SetOptionsButtonHidden() {
+
+    OptionButton1->SetVisibility(ESlateVisibility::Hidden);
+    OptionButton2->SetVisibility(ESlateVisibility::Hidden);
+    OptionButton3->SetVisibility(ESlateVisibility::Hidden);
+    OptionButton4->SetVisibility(ESlateVisibility::Hidden);
+    OptionButton5->SetVisibility(ESlateVisibility::Hidden);
+    OptionButton6->SetVisibility(ESlateVisibility::Hidden);
+
 }

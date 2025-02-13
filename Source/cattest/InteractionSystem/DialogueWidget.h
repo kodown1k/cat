@@ -35,9 +35,13 @@ public:
 
     // Funkcja do ustawiania opcji dialogowych
     void PopulateDialogueOptions(TArray<FDialogStruct*>, int32 StartDialogueIndex);
+    void SetOptionVisibility();
+    
+    
+    
     void SetNPCText(const FText& Text);
 
-    void SetOptionVisibility(int32 OptionCount);
+    
 
     
     FOnDialogueClosed OnDialogueClosed; // Delegat, wywo³ywany przy zamkniêciu dialogu
@@ -114,6 +118,7 @@ private:
     void OnDialogueOptionClicked(int32 clickedOptionId);
     UFUNCTION()
     void OnDialogueOptionClicked1();
+    
     UFUNCTION()
     void OnDialogueOptionClicked2();
     UFUNCTION()
@@ -124,6 +129,12 @@ private:
     void OnDialogueOptionClicked5();
     UFUNCTION()
     void OnDialogueOptionClicked6();
+    
+    UFUNCTION()
+
+    void SetOptionsButtonHidden();
+   
+    
 
     TArray<FDialogStruct*> DialogueOption;  // Tablica z opcjami dialogowymi
     int32 questIDToActivate;
@@ -136,5 +147,16 @@ private:
     int32 ClickedOption4;  // Indeks bie¿¹cego dialogu
     int32 ClickedOption5;  // Indeks bie¿¹cego dialogu
     int32 ClickedOption;
+    int32 StartDialogueIndex;
+    int32 OptionCount;
+    USoundBase* soundToPlay;
+    USoundBase* soundToPlay1;
+    USoundBase* soundToPlay2;
+    USoundBase* soundToPlay3;
+    USoundBase* soundToPlay4;
+    USoundBase* soundToPlay5;
+    USoundBase* soundToPlay6;
+    FDialogStruct* CurrentIndexOption;
+
     
 };
