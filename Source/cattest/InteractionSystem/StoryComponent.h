@@ -59,6 +59,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Quest")
 	TObjectPtr<AQuestManager> QuestManager;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UDataTable* QuestManagerDatatable;
+
 	// Referencja do widgetu QuestLog (jeœli chcesz go pokazaæ)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UQuestJournal> QuestLogWidgetClass;
@@ -71,7 +74,17 @@ public:
 	void OpenMenuWidget();
 
 	void ShowQuestLog();
+	UFUNCTION()
+	void UpdateDataTable(int32 QuestID, bool NewStatus);
+	UFUNCTION()
+	void UpdateDataTableCompleteQuest(int32 QuestID, bool NewStatus);
+	UFUNCTION()
+	bool IsQuestActive(int32 QuestID);
+	UFUNCTION()
+	bool IsQuestCompleted(int32 QuestID);
 
+	
+	
 	//
 
 protected:

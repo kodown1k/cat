@@ -76,7 +76,8 @@ public:
 	// GAME TAG DO WZNOWIENIA RAYCASTOW
 	//-------------------------------------------------------
 
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	ACharacter* PlayerCharacter;
 
 protected:
 	// Przechowuje tagi aktora

@@ -16,52 +16,82 @@ void UQuestJournal::NativeConstruct()
 
 void UQuestJournal::PopulateQuestList(TArray<FQuestStruct1> ActiveQuests)
 {
-    QuestList->ClearChildren();
-    // Dla ka¿dego aktywnego questa tworzymy nowy widget i dodajemy do listy
+    // Pobieramy istniej¹ce wpisy
+    TArray<UWidget*> ExistingChildren = QuestList->GetAllChildren();
+    TMap<FString, UW_QuestEntry*> QuestMap;
+
+    // Wype³niamy mapê istniej¹cych wpisów
+    for (UWidget* Child : ExistingChildren)
+    {
+        UW_QuestEntry* QuestEntry = Cast<UW_QuestEntry>(Child);
+        if (QuestEntry)
+        {
+            QuestMap.Add(QuestEntry->QuestName->GetText().ToString(), QuestEntry);
+        }
+    }
+
+    // Lista aktywnych questów do ³atwego sprawdzania
+    TSet<FString> ActiveQuestNames;
     for (const FQuestStruct1& Quest : ActiveQuests)
     {
-        
-        // Tworzymy widget dla ka¿dego questa
-        // Tworzymy widget dla ka¿dego questa
-        UW_QuestEntry* NewEntry = CreateWidget<UW_QuestEntry>(GetWorld(), QuestEntryWidgetClass);
-
-
-        // Logowanie, czy widget zosta³ utworzony
-        if (NewEntry)
+        if (Quest.bIsActive)
         {
-            UE_LOG(LogTemp, Warning, TEXT("Nowy widget quest entry stworzony: %s"), *Quest.QuestName);
+            ActiveQuestNames.Add(Quest.QuestName);
+        }
+    }
+
+    // Usuwamy questy, które by³y aktywne, ale teraz ich nie ma w ActiveQuests lub sta³y siê nieaktywne
+    for (auto& Entry : QuestMap)
+    {
+        if (!ActiveQuestNames.Contains(Entry.Key))
+        {
+            Entry.Value->RemoveFromParent(); // Usuwamy z UI
+            UE_LOG(LogTemp, Warning, TEXT("Usuniêto quest: %s"), *Entry.Key);
+        }
+    }
+
+    // Przetwarzamy nowe questy
+    for (const FQuestStruct1& Quest : ActiveQuests)
+    {
+        if (!Quest.bIsActive)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Pominiêto nieaktywny quest: %s"), *Quest.QuestName);
+            continue;
+        }
+
+        if (QuestMap.Contains(Quest.QuestName))
+        {
+            // Aktualizujemy istniej¹cy quest
+            UW_QuestEntry* ExistingEntry = QuestMap[Quest.QuestName];
+            ExistingEntry->CurrentProgress = Quest.CurrentProgress;
+            ExistingEntry->RequiredAmount = Quest.RequiredAmount;
+
+            ExistingEntry->QuestName->SetText(FText::FromString(Quest.QuestName));
+            ExistingEntry->DescriptionText->SetText(FText::FromString(Quest.Description));
+
+            UE_LOG(LogTemp, Warning, TEXT("Zaktualizowano quest: %s"), *Quest.QuestName);
         }
         else
         {
-            UE_LOG(LogTemp, Warning, TEXT("B³¹d przy tworzeniu widgetu dla questa: %s"), *Quest.QuestName);
-        }
+            // Tworzymy nowy wpis
+            UW_QuestEntry* NewEntry = CreateWidget<UW_QuestEntry>(GetWorld(), QuestEntryWidgetClass);
 
-
-        // Ustawiamy dane w odpowiednich widgetach
-        if (NewEntry)
-        {
-            // Przypisujemy teksty do odpowiednich widgetów
-            if (NewEntry->QuestName)
+            if (NewEntry)
             {
                 NewEntry->QuestName->SetText(FText::FromString(Quest.QuestName));
-            }
-
-            if (NewEntry->DescriptionText)
-            {
                 NewEntry->DescriptionText->SetText(FText::FromString(Quest.Description));
+                NewEntry->RequiredAmount = Quest.RequiredAmount;
+                NewEntry->CurrentProgress = Quest.CurrentProgress;
+
+                QuestList->AddChild(NewEntry);
+
+                UE_LOG(LogTemp, Warning, TEXT("Dodano nowy quest: %s"), *Quest.QuestName);
             }
-
-            // Ustawiamy inne dane (jeœli potrzeba)
-            NewEntry->RequiredAmount = Quest.RequiredAmount;
-            NewEntry->CurrentProgress = Quest.CurrentProgress;
-
-            // Dodajemy widget do listy (jeœli u¿ywasz np. VerticalBox)
-            QuestList->AddChild(NewEntry);
-            UE_LOG(LogTemp, Warning, TEXT("Dodano quest do listy: %s"), *Quest.QuestName)
-                DebugQuestListContents();
-               
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("B³¹d przy tworzeniu widgetu dla questa: %s"), *Quest.QuestName);
+            }
         }
-        
     }
 }
 

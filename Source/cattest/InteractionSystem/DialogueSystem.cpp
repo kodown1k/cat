@@ -1,12 +1,16 @@
 #include "DialogueSystem.h"
 #include "DialogueWidget.h"
 #include "ButtonDialogueWidget.h"
+#include <Kismet/GameplayStatics.h>
+#include "StoryComponent.h"
 
 UDialogueSystem::UDialogueSystem()
 {
     // Inicjalizacja wartoœci domyœlnych
     CurrentDialogueIndex = 0;
 }
+
+
 
 void UDialogueSystem::LoadDialogueData(UDataTable* DialogueDataTable, int32 NPC_ID, TSubclassOf<UDialogueWidget> NewWidgetClass)
 {
@@ -38,55 +42,6 @@ void UDialogueSystem::LoadDialogueData(UDataTable* DialogueDataTable, int32 NPC_
     ShowDialogueWidget();
 }
 
-//void UDialogueSystem::ShowDialogueWidget()
-//{
-//    if (UWorld* World = GetWorld())  // Sprawdzamy, czy œwiat jest dostêpny
-//    {
-//        if (DialogueWidgetClass)  // Sprawdzamy, czy klasa widgetu zosta³a przypisana
-//        {
-//            // Jeœli widget ju¿ istnieje i jest widoczny, nie tworzymy nowego
-//            if (DialogueWidget && DialogueWidget->IsInViewport())
-//            {
-//                // Mo¿esz dodaæ dodatkow¹ logikê, aby zaktualizowaæ widget lub po prostu wyjœæ
-//                UE_LOG(LogTemp, Warning, TEXT("Widget is already visible."));
-//                return;
-//            }
-//
-//            // Tworzymy widget tylko wtedy, gdy nie jest jeszcze widoczny
-//            DialogueWidget = CreateWidget<UDialogueWidget>(World, DialogueWidgetClass);
-//
-//            if (DialogueWidget)  // Jeœli widget zosta³ poprawnie utworzony
-//            {
-//                
-//                // Przekazywanie dialogu do widgetu
-//                if (DialogOptions.IsValidIndex(CurrentDialogueIndex))
-//                {
-//                    DialogueWidget->PopulateDialogueOptions(DialogOptions,CurrentDialogueIndex);
-//                    UE_LOG(LogTemp, Log, TEXT("Widget populated with dialogue options."));
-//                }
-//                else
-//                {
-//                    UE_LOG(LogTemp, Warning, TEXT("Invalid dialogue index: %d. Cannot populate dialogue options."), CurrentDialogueIndex);
-//                }
-//
-//                // Ustawienie widocznoœci widgetu na ekranie
-//                
-//                DialogueWidget->SetVisibility(ESlateVisibility::Visible);
-//                DialogueWidget->AddToViewport();
-//                
-//                UE_LOG(LogTemp, Log, TEXT("Widget added to viewport."));
-//            }
-//            else
-//            {
-//                UE_LOG(LogTemp, Warning, TEXT("Nie uda³o siê stworzyæ widgetu!"));
-//            }
-//        }
-//        else
-//        {
-//            UE_LOG(LogTemp, Warning, TEXT("Brak przypisanej klasy widgetu!"));
-//        }
-//    }
-//}
 
 void UDialogueSystem::ShowDialogueWidget()
 {
@@ -100,7 +55,8 @@ void UDialogueSystem::ShowDialogueWidget()
                 if (DialogueWidget)
                 {
                     DialogueWidget->OnDialogueClosed.AddDynamic(this, &UDialogueSystem::EnablePlayerMovement);
-                    
+                    DialogueWidget->OnDialogueQuest.AddDynamic(this, &UDialogueSystem::HandleDialogueQuest);
+                    DialogueWidget->OnDialogueQuestCompleted.AddDynamic(this, &UDialogueSystem::HandleDialogueQuestCompleted);
                     
                     DialogueWidget->SetVisibility(ESlateVisibility::Hidden); // Ukryty na start
 
@@ -155,6 +111,55 @@ void UDialogueSystem::DisablePlayerMovement()
     }
 }
 
+void UDialogueSystem::HandleDialogueQuest(bool activateQuest, int32 questID)
+{
+    if (activateQuest)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Activating Quest: %d"), questID);
+        if (!PlayerCharacter) {
+            PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+        }
+        if (PlayerCharacter)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Found Player Character:"));
+            UStoryComponent* StoryComponent = PlayerCharacter->FindComponentByClass<UStoryComponent>();
+            if (StoryComponent) {
+                StoryComponent->UpdateDataTable(questID, true);
+                UE_LOG(LogTemp, Warning, TEXT("Activating Quest: "), questID);
+            }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Deactivating Quest: %d"), questID);
+    }
+}
+
+void UDialogueSystem::HandleDialogueQuestCompleted(bool completeQuest, int32 questID)
+{
+    if (completeQuest)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Completing Quest: %d"), questID);
+        if (!PlayerCharacter) {
+            PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+        }
+        if (PlayerCharacter)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Found Player Character:"));
+            UStoryComponent* StoryComponent = PlayerCharacter->FindComponentByClass<UStoryComponent>();
+            if (StoryComponent) {
+                StoryComponent->UpdateDataTable(questID, false);
+                StoryComponent->UpdateDataTableCompleteQuest(questID, true);
+                UE_LOG(LogTemp, Warning, TEXT("Activating Quest: "), questID);
+            }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Deactivating Quest: %d"), questID);
+    }
+}
+
 void UDialogueSystem::EnablePlayerMovement()
 {
     if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
@@ -173,3 +178,4 @@ void UDialogueSystem::EnablePlayerMovement()
         }
     }
 }
+

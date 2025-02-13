@@ -57,10 +57,17 @@ void ABaseNPC::SetNPCName(const FString& Name)
 void ABaseNPC::BeginPlay()
 {
     Super::BeginPlay();
-    UE_LOG(LogTemp, Log, TEXT("1"));
+
+    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+    if (PlayerController)
+    {
+        PlayerCharacter = Cast<ACharacter>(PlayerController->GetPawn());  //REFERENCCJA DO GRACZA
+    }
+
+    
     //USTAW WIDGET NPCA NA POCZATKU GRY
     //__________________________________
-    UE_LOG(LogTemp, Log, TEXT("ABaseNPC: BeginPlay()"));
+  
 
     if (UUserWidget* Widget = Cast<UUserWidget>(InteractionWidget->GetWidget()))
     {
