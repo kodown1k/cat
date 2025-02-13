@@ -6,6 +6,8 @@
 #include "GameplayTags.h"  // Konieczne dla tagów
 #include "DialogStruct.generated.h"  // To makro wygeneruje kod specyficzny dla Unreal Engine
 
+
+
 // Struktura do u¿ywania w DataTable
 USTRUCT(BlueprintType)
 struct FDialogStruct : public FTableRowBase
@@ -55,6 +57,9 @@ struct FDialogStruct : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 completedQuestID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USoundBase* soundBase;
     
     
 
